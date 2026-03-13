@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { isAxiosError } from "axios";
 import { apiClient } from "../api";
 import { useAuth } from "../hooks/useAuth";
 import {
@@ -26,11 +27,12 @@ import {
 } from "../types/api";
 import { slugify } from "../utils/text";
 import { useInterval } from "../hooks/useInterval";
+import { getAxiosErrorData, getErrorMessage } from "../utils/errors";
 
 export type WorkspaceTab = "dashboard" | "home" | "dms" | "activity";
 export type DashboardRange = "today" | "7d" | "30d" | "90d" | "all" | "custom";
 
-interface CreateTicketModel {
+export interface CreateTicketModel {
   title: string;
   description: string;
   projectId: string;
@@ -40,7 +42,7 @@ interface CreateTicketModel {
   priority: TicketPriority;
 }
 
-interface CreateProjectModel {
+export interface CreateProjectModel {
   name: string;
   slug: string;
   ticketPrefix: string;
@@ -320,7 +322,7 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const resetWorkspaceState = useCallback(() => {
-    setState((prev) => ({
+    setState(() => ({
       ...initialState,
       workspaceLabel: defaultWorkspaceLabel,
       selectedUserId: user?.id || "",
@@ -541,6 +543,7 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
         startDate?: string | null;
         endDate?: string | null;
         search?: string;
+        range?: DashboardRange;
       },
     ) => {
       mergeState({ userWorkLogLoading: true });
@@ -825,15 +828,20 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
         messageDraft: "",
         lockedTicket: null,
       });
-    } catch (error: any) {
-      if (error?.response?.status === 403 && error?.response?.data?.ticket) {
-        mergeState({
-          selectedTicket: null,
-          lockedTicket: error.response.data.ticket,
-        });
-      } else {
-        console.error("Unable to select ticket", error);
+    } catch (error: unknown) {
+      if (isAxiosError(error) && error.response?.status === 403) {
+        const data = getAxiosErrorData<{ ticket?: WorkspaceState["lockedTicket"] }>(
+          error,
+        );
+        if (data?.ticket) {
+          mergeState({
+            selectedTicket: null,
+            lockedTicket: data.ticket,
+          });
+          return;
+        }
       }
+      console.error("Unable to select ticket", error);
     }
   };
 
@@ -940,10 +948,10 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       mergeState({ feedback: "Project updated." });
       closeProjectEditor();
       await loadProjects();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Unable to update project", error);
       mergeState({
-        feedback: error?.response?.data?.message || "Project update failed.",
+        feedback: getErrorMessage(error) || "Project update failed.",
       });
     } finally {
       mergeState({ projectEditorSaving: false });
@@ -974,10 +982,10 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       closeProjectEditor();
       await loadProjects();
       await loadTickets();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Unable to delete project", error);
       mergeState({
-        feedback: error?.response?.data?.message || "Unable to delete project.",
+        feedback: getErrorMessage(error) || "Unable to delete project.",
       });
     } finally {
       mergeState({ projectEditorDeleting: false });
@@ -1022,10 +1030,10 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       });
       await loadProjects();
       await loadTickets();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Unable to create project", error);
       mergeState({
-        feedback: error?.response?.data?.message || "Project creation failed.",
+        feedback: getErrorMessage(error) || "Project creation failed.",
       });
     }
   };
@@ -1346,11 +1354,11 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       mergeState({ feedback: "Profile updated." });
       closeUserSettings();
       await loadUsers();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Unable to update profile", error);
       mergeState({
         userSettingsError:
-          error?.response?.data?.message || "Unable to update profile.",
+          getErrorMessage(error) || "Unable to update profile.",
       });
     } finally {
       mergeState({ userSettingsSaving: false });

@@ -1,20 +1,15 @@
 import { FormEvent } from "react";
 import { Project } from "../../types/api";
-
-interface CreateTicketForm {
-  title: string;
-  description: string;
-  projectId: string;
-  estimatedHours: number;
-  priority: "normal" | "priority";
-  privacy: "public" | "private";
-}
+import type { CreateTicketModel } from "../../context/WorkspaceContext";
 
 interface CreateTicketModalProps {
   isOpen: boolean;
-  form: CreateTicketForm;
+  form: CreateTicketModel;
   projects: Project[];
-  onFieldChange: <K extends keyof CreateTicketForm>(field: K, value: CreateTicketForm[K]) => void;
+  onFieldChange: <K extends keyof CreateTicketModel>(
+    field: K,
+    value: CreateTicketModel[K],
+  ) => void;
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
@@ -84,7 +79,9 @@ const CreateTicketModal = ({
             Priority
             <select
               value={form.priority}
-              onChange={(event) => onFieldChange("priority", event.target.value as CreateTicketForm["priority"])}
+              onChange={(event) =>
+                onFieldChange("priority", event.target.value as CreateTicketModel["priority"])
+              }
             >
               <option value="normal">Normal</option>
               <option value="priority">Priority</option>
@@ -94,7 +91,9 @@ const CreateTicketModal = ({
             Privacy
             <select
               value={form.privacy}
-              onChange={(event) => onFieldChange("privacy", event.target.value as CreateTicketForm["privacy"])}
+              onChange={(event) =>
+                onFieldChange("privacy", event.target.value as CreateTicketModel["privacy"])
+              }
             >
               <option value="public">Public</option>
               <option value="private">Private</option>

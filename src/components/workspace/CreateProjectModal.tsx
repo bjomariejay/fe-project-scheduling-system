@@ -1,16 +1,13 @@
 import { FormEvent } from "react";
-
-interface CreateProjectForm {
-  name: string;
-  slug: string;
-  ticketPrefix: string;
-  description: string;
-}
+import type { CreateProjectModel } from "../../context/WorkspaceContext";
 
 interface CreateProjectModalProps {
   isOpen: boolean;
-  form: CreateProjectForm;
-  onFieldChange: <K extends keyof CreateProjectForm>(field: K, value: CreateProjectForm[K]) => void;
+  form: CreateProjectModel;
+  onFieldChange: <K extends keyof CreateProjectModel>(
+    field: K,
+    value: CreateProjectModel[K],
+  ) => void;
   onClose: () => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }

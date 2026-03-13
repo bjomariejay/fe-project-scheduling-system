@@ -14,6 +14,7 @@ import CreateProjectModal from "../components/workspace/CreateProjectModal";
 import { useAuth } from "../hooks/useAuth";
 import { useWorkspace } from "../hooks/useWorkspace";
 import { NotificationItem, Ticket, User } from "../types/api";
+import { getErrorMessage } from "../utils/errors";
 
 const ticketCategoryConfig = [
   { key: "open", label: "New" },
@@ -48,16 +49,13 @@ const WorkspacePage = () => {
     quickUpdateTicket,
     handleJoinTicket,
     handleArchiveTicket,
-    handlePrivacyChange,
     restoreArchivedTicket,
     handleDashboardRangeChange,
     handleDashboardDateChange,
     handleUserWorkLogSearchChange,
     handleUserWorkLogRangeChange,
     handleUserWorkLogDateChange,
-    refreshUserWorkLogs,
     handleDmRecipientChange,
-    markNotification,
     navigateToNotification,
     openUserSettings,
     closeUserSettings,
@@ -100,7 +98,6 @@ const WorkspacePage = () => {
     hasDmAttention,
     hasActivityAttention,
     isBootstrapping,
-    isLoadingTickets,
     isPostingMessage,
     dashboardRange,
     dashboardStartDate,
@@ -117,7 +114,6 @@ const WorkspacePage = () => {
     showProjectEditor,
     projectReportEntries,
     viewingReportsForProjectId,
-    viewingReportsForProjectName,
     projectReportsLoading,
     isGlobalReportView,
     isReviewerReportView,
@@ -462,10 +458,10 @@ const WorkspacePage = () => {
     try {
       await updateUserInfo(adminEditUser.id, payload);
       closeAdminEdit();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Unable to update user", error);
       setAdminEditError(
-        error?.response?.data?.message || "Unable to update user.",
+        getErrorMessage(error) || "Unable to update user.",
       );
     } finally {
       setAdminEditSaving(false);
@@ -1013,7 +1009,7 @@ const WorkspacePage = () => {
                                             );
                                           } else {
                                             setMessageDraft(
-                                              (prev) => `${prev}${insertion}`,
+                                              `${messageDraft}${insertion}`,
                                             );
                                           }
 
@@ -1051,7 +1047,7 @@ const WorkspacePage = () => {
                                           );
                                         } else {
                                           setMessageDraft(
-                                            (prev) => `${prev}${command} `,
+                                            `${messageDraft}${command} `,
                                           );
                                         }
                                         setShowSlashSuggestions(false);
@@ -1177,9 +1173,9 @@ const WorkspacePage = () => {
     try {
       await quickUpdateTicket(dashboardTicketToEdit.id, updates);
       setDashboardTicketToEdit(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setDashboardTicketError(
-        error?.response?.data?.message || "Unable to update ticket.",
+        getErrorMessage(error) || "Unable to update ticket.",
       );
     } finally {
       setDashboardTicketSaving(false);
@@ -1251,9 +1247,7 @@ const WorkspacePage = () => {
       isOpen={showCreateTicket}
       form={createTicketModel}
       projects={projects}
-      onFieldChange={(field, value) =>
-        updateCreateTicketField(field as any, value as any)
-      }
+      onFieldChange={updateCreateTicketField}
       onClose={closeCreateTicket}
       onSubmit={handleTicketSubmit}
     />
@@ -1263,9 +1257,7 @@ const WorkspacePage = () => {
     <CreateProjectModal
       isOpen={showCreateProject}
       form={createProjectModel}
-      onFieldChange={(field, value) =>
-        updateCreateProjectField(field as any, value as any)
-      }
+      onFieldChange={updateCreateProjectField}
       onClose={closeCreateProject}
       onSubmit={handleProjectSubmit}
     />

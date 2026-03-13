@@ -34,7 +34,7 @@ const ActivityPanel = ({ notifications, unreadCount, onOpenTicket }: ActivityPan
             </li>
           ))
         ) : (
-          <li className="muted">You're all caught up!</li>
+          <li className="muted">You&apos;re all caught up!</li>
         )}
       </ul>
     </article>

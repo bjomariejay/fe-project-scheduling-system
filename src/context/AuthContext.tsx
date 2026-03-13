@@ -2,6 +2,7 @@ import { createContext, useCallback, useEffect, useMemo, useState, type ReactNod
 import { apiClient, SESSION_EXPIRED_EVENT } from '../api';
 import { LoginPayload, RegisterPayload, User } from '../types/api';
 import { storage } from '../utils/storage';
+import { getErrorMessage } from '../utils/errors';
 
 const TOKEN_KEY = 'tsfe:token';
 const USER_KEY = 'tsfe:user';
@@ -92,8 +93,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         const response = await apiClient.register(payload);
         persistSession(response.token, response.user);
-      } catch (error: any) {
-        setAuthError(error?.response?.data?.message || 'Unable to register.');
+      } catch (error: unknown) {
+        setAuthError(getErrorMessage(error) || 'Unable to register.');
         throw error;
       } finally {
         setAuthLoading(false);
