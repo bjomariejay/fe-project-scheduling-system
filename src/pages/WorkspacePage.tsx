@@ -1320,7 +1320,7 @@ const WorkspacePage = () => {
     <div className="workspace">
       <aside className="workspace__sidebar">
         <div className="sidebar__brand">
-          <p className="project-name">Project and Ticket Management</p>
+          <p className="project-name">Project Scheduling</p>
           <small className="workspace-name">{workspaceLabel}</small>
         </div>
         {user && (
