@@ -721,7 +721,7 @@ textarea {
 }
 
 .user-work-logs td:last-child {
-  text-align: right;
+  text-align: left;
 }
 
 .user-work-logs th {
