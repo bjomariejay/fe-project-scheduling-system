@@ -25,7 +25,7 @@ import {
   WorkspaceSummary,
 } from '../types/api';
 
-const defaultBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const defaultBaseUrl = import.meta.env.VITE_API_URL || 'https://be-project-scheduling-system-production-4d7c.up.railway.app/api';
 export const SESSION_EXPIRED_EVENT = 'app-session-expired';
 
 export class ApiClient {
