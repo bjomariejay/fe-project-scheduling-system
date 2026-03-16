@@ -23,14 +23,6 @@ textarea {
   font: inherit;
 }
 
-#root {
-  display: block;
-  min-height: 100vh;
-  background: #0b0c10;
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #111;
-}
-
 .workspace {
   display: flex;
   min-height: 100vh;

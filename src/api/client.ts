@@ -25,7 +25,7 @@ import {
   WorkspaceSummary,
 } from '../types/api';
 
-const defaultBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const defaultBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 export const SESSION_EXPIRED_EVENT = 'app-session-expired';
 
 export class ApiClient {

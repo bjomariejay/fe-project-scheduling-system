@@ -1,3 +1,5 @@
+'use client';
+
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { apiClient } from '../api';
 import { useAuth } from '../hooks/useAuth';

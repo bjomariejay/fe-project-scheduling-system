@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { apiClient, SESSION_EXPIRED_EVENT } from '../api';
 import { LoginPayload, RegisterPayload, User } from '../types/api';
@@ -11,6 +13,7 @@ interface AuthContextValue {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  sessionInitialized: boolean;
   authLoading: boolean;
   authError: string | null;
   login: (payload: LoginPayload) => Promise<void>;
@@ -21,6 +24,9 @@ interface AuthContextValue {
 }
 
 const readStoredToken = () => {
+  if (typeof window === 'undefined') {
+    return null;
+  }
   try {
     return localStorage.getItem(TOKEN_KEY);
   } catch (error) {
@@ -40,31 +46,40 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [token, setToken] = useState<string | null>(() => readStoredToken());
-  const [user, setUser] = useState<User | null>(() => readStoredUser());
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [sessionInitialized, setSessionInitialized] = useState(false);
 
   apiClient.setAuthToken(token);
+
+  useEffect(() => {
+    setToken(readStoredToken());
+    setUser(readStoredUser());
+    setSessionInitialized(true);
+  }, []);
 
   const persistSession = useCallback((nextToken: string | null, nextUser: User | null) => {
     setToken(nextToken);
     setUser(nextUser);
     apiClient.setAuthToken(nextToken);
-    if (nextToken && nextUser) {
-      try {
-        localStorage.setItem(TOKEN_KEY, nextToken);
-      } catch (error) {
-        console.warn('Unable to persist auth token', error);
+    if (typeof window !== 'undefined') {
+      if (nextToken && nextUser) {
+        try {
+          localStorage.setItem(TOKEN_KEY, nextToken);
+        } catch (error) {
+          console.warn('Unable to persist auth token', error);
+        }
+        storage.set(USER_KEY, nextUser);
+      } else {
+        try {
+          localStorage.removeItem(TOKEN_KEY);
+        } catch (error) {
+          console.warn('Unable to clear auth token', error);
+        }
+        storage.remove(USER_KEY);
       }
-      storage.set(USER_KEY, nextUser);
-    } else {
-      try {
-        localStorage.removeItem(TOKEN_KEY);
-      } catch (error) {
-        console.warn('Unable to clear auth token', error);
-      }
-      storage.remove(USER_KEY);
     }
   }, []);
 
@@ -147,6 +162,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       user,
       token,
       isAuthenticated: Boolean(user && token),
+      sessionInitialized,
       authLoading,
       authError,
       login,
@@ -155,7 +171,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       updateProfile,
       clearAuthError: () => setAuthError(null),
     }),
-    [authError, authLoading, login, logout, register, token, updateProfile, user]
+    [authError, authLoading, login, logout, register, sessionInitialized, token, updateProfile, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

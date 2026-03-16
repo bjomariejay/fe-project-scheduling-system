@@ -1,5 +1,8 @@
 export const storage = {
   get<T>(key: string): T | null {
+    if (typeof window === 'undefined') {
+      return null;
+    }
     try {
       const value = localStorage.getItem(key);
       if (!value) return null;
@@ -10,6 +13,9 @@ export const storage = {
     }
   },
   set<T>(key: string, value: T) {
+    if (typeof window === 'undefined') {
+      return;
+    }
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (error) {
@@ -17,6 +23,9 @@ export const storage = {
     }
   },
   remove(key: string) {
+    if (typeof window === 'undefined') {
+      return;
+    }
     try {
       localStorage.removeItem(key);
     } catch (error) {
