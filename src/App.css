@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
 
 * {
   box-sizing: border-box;
@@ -8,7 +8,13 @@ body {
   margin: 0;
   min-height: 100vh;
   background: #0b0c10;
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: #111;
 }
 
@@ -27,7 +33,13 @@ textarea {
   display: block;
   min-height: 100vh;
   background: #0b0c10;
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Inter",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: #111;
 }
 
@@ -186,7 +198,9 @@ textarea {
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .primary-nav button.active {
@@ -200,7 +214,6 @@ textarea {
   color: #ffe9c0;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08) inset;
 }
-
 
 .sidebar__section {
   display: flex;
@@ -244,7 +257,7 @@ textarea {
   position: relative;
 }
 
-.header__actions input[type='search'] {
+.header__actions input[type="search"] {
   padding: 0.5rem 0.9rem;
   border-radius: 999px;
   border: 1px solid #d4d7e5;
@@ -335,7 +348,9 @@ textarea {
   align-items: center;
   gap: 0.4rem;
   box-shadow: 0 12px 25px rgba(213, 58, 157, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .sign-out-btn:hover {
@@ -393,7 +408,9 @@ textarea {
 }
 
 .project-panel {
-  transition: max-height 0.35s ease, opacity 0.35s ease;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.35s ease;
   max-height: none;
 }
 
@@ -618,7 +635,6 @@ textarea {
   padding: 0.1rem 0.25rem;
 }
 
-
 .ticket-category {
   border: 1px solid #e4e7f2;
   border-radius: 0.9rem;
@@ -680,7 +696,10 @@ textarea {
   border-radius: 999px;
   cursor: pointer;
   font-weight: 600;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .dashboard-tabs button.active {
@@ -690,7 +709,7 @@ textarea {
 }
 
 .dashboard-controls select,
-.dashboard-controls input[type='date'] {
+.dashboard-controls input[type="date"] {
   border-radius: 0.6rem;
   border: 1px solid #dfe3ef;
   padding: 0.4rem 0.6rem;
@@ -1146,7 +1165,6 @@ textarea {
   gap: 0.8rem;
 }
 
-
 .ticket-info {
   margin-top: 1.25rem;
   background: #f6f6fb;
@@ -1408,7 +1426,6 @@ textarea {
   font-size: 0.8rem;
 }
 
-
 .report-detail {
   display: flex;
   flex-direction: column;
@@ -1501,7 +1518,6 @@ textarea {
   background: rgba(97, 31, 105, 0.15);
 }
 
-
 .dm-panel {
   position: relative;
   overflow: hidden;
@@ -1530,7 +1546,11 @@ textarea {
 .dm-panel::after {
   width: 260px;
   height: 260px;
-  background: radial-gradient(circle, rgba(24, 170, 166, 0.25), transparent 60%);
+  background: radial-gradient(
+    circle,
+    rgba(24, 170, 166, 0.25),
+    transparent 60%
+  );
   inset: auto -120px -160px auto;
 }
 
@@ -1629,7 +1649,9 @@ textarea {
   border: 1px solid #dfe3ef;
   padding: 0.55rem 0.75rem;
   font-weight: 500;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .dm-recipient-field select:focus {
@@ -1665,7 +1687,9 @@ textarea {
   padding: 0.85rem 1rem;
   min-height: 140px;
   font-size: 0.95rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .dm-panel textarea:focus {
@@ -1845,7 +1869,9 @@ textarea {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: radial-gradient(circle at top, rgba(97, 31, 105, 0.4), transparent 60%), #0d0d19;
+  background:
+    radial-gradient(circle at top, rgba(97, 31, 105, 0.4), transparent 60%),
+    #0d0d19;
   color: #f6f3ff;
 }
 
@@ -1958,7 +1984,7 @@ textarea {
 
 @media (max-width: 1100px) {
   .workspace {
-    flex-direction: column;
+    flex-direction: column-reverse;
   }
 
   .workspace__sidebar {
@@ -1967,10 +1993,28 @@ textarea {
     flex-wrap: wrap;
     gap: 1rem;
     align-items: center;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .sidebar__profile,
+  .sidebar__footer,
+  .sidebar__team,
+  .sidebar__brand {
+    display: none;
   }
 
   .workspace__main {
     padding: 1.2rem;
+  }
+
+  .primary-nav {
+    display: ruby;
+    justify-content: center;
+    align-items: center;
+    justify-items: center;
   }
 
   .home-layout {
