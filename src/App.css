@@ -2011,7 +2011,7 @@ textarea {
   }
 
   .primary-nav {
-    display: ruby;
+    display: -webkit-inline-box;
     justify-content: center;
     align-items: center;
     justify-items: center;
