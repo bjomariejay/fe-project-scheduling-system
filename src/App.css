@@ -2004,7 +2004,7 @@ textarea {
   }
 
   .sign-out-btn{
-    position: fixed;
+    position: absolute;
     right: 15px;
   }
 
