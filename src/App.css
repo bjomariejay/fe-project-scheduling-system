@@ -2003,6 +2003,15 @@ textarea {
     bottom: 0;
   }
 
+  .sign-out-btn{
+    position: fixed;
+    right: 15px;
+  }
+
+  .main__header{
+    display: grid;
+  }
+
   .sidebar__profile,
   .sidebar__footer,
   .sidebar__team,
