@@ -23,6 +23,7 @@ import { useAuth } from "../hooks/useAuth";
 import { useWorkspace } from "../hooks/useWorkspace";
 import { NotificationItem, Ticket, User } from "../types/api";
 import { getErrorMessage } from "../utils/errors";
+import defaultAvatar from "../assets/default-avatar.svg";
 
 const ticketCategoryConfig = [
   { key: "open", label: "New", class: "open" },
@@ -260,6 +261,11 @@ const WorkspacePage = () => {
     (user as UserWithAvatar | null)?.photoUrl ??
     (user as UserWithAvatar | null)?.imageUrl ??
     null;
+
+  const avatarSrc = resolvedAvatarUrl || defaultAvatar;
+  const avatarAlt = user?.displayName
+    ? `${user.displayName}'s avatar`
+    : `User ${userInitial} avatar`;
 
   const handleUserMenuToggle = () => {
     setShowUserMenu((prev) => !prev);
@@ -1707,20 +1713,11 @@ const WorkspacePage = () => {
                     aria-expanded={showUserMenu}
                     ref={userMenuTriggerRef}
                   >
-                    {resolvedAvatarUrl ? (
-                      <img
-                        src={resolvedAvatarUrl}
-                        alt="User avatar"
-                        className="user-avatar__image"
-                      />
-                    ) : (
-                      <span
-                        className="user-avatar__fallback"
-                        aria-hidden="true"
-                      >
-                        {userInitial}
-                      </span>
-                    )}
+                    <img
+                      src={avatarSrc}
+                      alt={avatarAlt}
+                      className="user-avatar__image"
+                    />
                   </button>
                   {showUserMenu && (
                     <div className="user-menu" ref={userMenuRef}>
