@@ -504,6 +504,11 @@ textarea {
   gap: 0.35rem;
 }
 
+.project-row__actions {
+  display: flex;
+  align-items: center;
+}
+
 .project-main {
   border: none;
   background: transparent;
@@ -546,34 +551,6 @@ textarea {
 
 .project-number {
   font-weight: 600;
-}
-
-.project-edit,
-.project-delete {
-  border: none;
-  background: transparent;
-  padding: 0.2rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  color: #a0a5ba;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.project-edit:hover,
-.project-edit:focus-visible,
-.project-delete:hover,
-.project-delete:focus-visible {
-  background: rgba(97, 31, 105, 0.08);
-  color: #611f69;
-}
-
-.project-edit svg,
-.project-delete svg {
-  width: 1.1rem;
-  height: 1.1rem;
-  fill: currentColor;
 }
 
 .project-ticket-groups {
@@ -1434,7 +1411,6 @@ textarea {
   font-size: 0.95rem;
   color: #3d4259;
   white-space: pre-line;
-  min-height: 60px;
 }
 
 .detail__meta {

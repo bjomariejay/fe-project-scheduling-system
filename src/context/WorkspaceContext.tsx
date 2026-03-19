@@ -231,6 +231,7 @@ interface WorkspaceContextValue {
   setMessageDraft: (value: string) => void;
   setActiveTab: (tab: WorkspaceTab) => void;
   selectProject: (projectId: string) => void;
+  clearProjectSelection: () => void;
   toggleProjectsCollapsed: () => void;
   selectTicket: (ticketId: string) => Promise<void>;
   clearSelectedTicket: () => void;
@@ -834,6 +835,10 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       isReviewerReportView: false,
     });
     void loadTickets();
+  };
+
+  const clearProjectSelection = () => {
+    mergeState({ selectedProjectId: "", expandedProjectId: "" });
   };
 
   const toggleProjectsCollapsed = () => {
@@ -1614,6 +1619,7 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       setMessageDraft,
       setActiveTab,
       selectProject,
+      clearProjectSelection,
       toggleProjectsCollapsed,
       selectTicket,
       clearSelectedTicket,

@@ -22,7 +22,7 @@ import TicketEditorModal from "../components/workspace/TicketEditorModal";
 import CreateProjectModal from "../components/workspace/CreateProjectModal";
 import { useAuth } from "../hooks/useAuth";
 import { useWorkspace } from "../hooks/useWorkspace";
-import { NotificationItem, Ticket, User } from "../types/api";
+import { NotificationItem, Project, Ticket, User } from "../types/api";
 import { getErrorMessage } from "../utils/errors";
 import defaultAvatar from "../assets/default-avatar.svg";
 
@@ -40,6 +40,7 @@ const WorkspacePage = () => {
     setMessageDraft,
     setActiveTab,
     selectProject,
+    clearProjectSelection,
     toggleProjectsCollapsed,
     selectTicket,
     clearSelectedTicket,
@@ -184,6 +185,11 @@ const WorkspacePage = () => {
   );
   const ticketMenuRef = useRef<HTMLDivElement | null>(null);
   const ticketMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [activeProjectMenuId, setActiveProjectMenuId] = useState<string | null>(
+    null,
+  );
+  const projectMenuRef = useRef<HTMLDivElement | null>(null);
+  const projectMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const filteredTickets = useMemo(() => {
     const search = ticketSearch.trim().toLowerCase();
@@ -276,6 +282,39 @@ const WorkspacePage = () => {
   useEffect(() => {
     setActiveTicketMenuId(null);
   }, [expandedProjectId, selectedProjectId]);
+
+  useEffect(() => {
+    if (!activeProjectMenuId) return;
+    const handleOutsideProjectMenuClick = (
+      event: MouseEvent | TouchEvent,
+    ) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (
+        projectMenuRef.current?.contains(target) ||
+        projectMenuTriggerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setActiveProjectMenuId(null);
+    };
+    document.addEventListener("mousedown", handleOutsideProjectMenuClick);
+    document.addEventListener("touchstart", handleOutsideProjectMenuClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideProjectMenuClick);
+      document.removeEventListener("touchstart", handleOutsideProjectMenuClick);
+    };
+  }, [activeProjectMenuId]);
+
+  useEffect(() => {
+    if (activeProjectMenuId) return;
+    projectMenuRef.current = null;
+    projectMenuTriggerRef.current = null;
+  }, [activeProjectMenuId]);
+
+  useEffect(() => {
+    setActiveProjectMenuId(null);
+  }, [workspaceBoardTab, projectsCollapsed]);
 
   const userInitial = (() => {
     const pickInitial = (value?: string | null) => {
@@ -460,6 +499,29 @@ const WorkspacePage = () => {
     setActiveTicketMenuId((current) =>
       current === ticketId ? null : ticketId,
     );
+  };
+
+  const closeProjectMenu = () => setActiveProjectMenuId(null);
+
+  const handleProjectMenuToggle = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    projectId: string,
+  ) => {
+    event.stopPropagation();
+    setActiveProjectMenuId((current) =>
+      current === projectId ? null : projectId,
+    );
+  };
+
+  const handleProjectCreateTicket = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    project: Project,
+  ) => {
+    event.stopPropagation();
+    closeProjectMenu();
+    clearProjectSelection();
+    updateCreateTicketField("projectId", project.id);
+    openCreateTicket();
   };
 
   const submitMessage = () => {
@@ -742,27 +804,10 @@ const WorkspacePage = () => {
                       type="button"
                       onClick={openCreateProject}
                     >
-                      + Project
-                    </button>
-                    <button
-                      className="link-button outline"
-                      type="button"
-                      onClick={openCreateTicket}
-                    >
-                      + Ticket
+                     Create Project
                     </button>
                   </div>
-                  <div className="space-section__header">
-                    <h4>Projects</h4>
-                    <span className="muted">{projects.length} active</span>
-                    <button
-                      type="button"
-                      className="collapse-btn"
-                      onClick={toggleProjectsCollapsed}
-                    >
-                      {projectsCollapsed ? "▶" : "▼"}
-                    </button>
-                  </div>
+                 
                   <div
                     className={clsx("project-panel", {
                       "is-collapsed": projectsCollapsed,
@@ -777,7 +822,10 @@ const WorkspacePage = () => {
                               className={clsx("project-main", {
                                 active: selectedProjectId === project.id,
                               })}
-                              onClick={() => selectProject(project.id)}
+                              onClick={() => {
+                                closeProjectMenu();
+                                selectProject(project.id);
+                              }}
                             >
                               <div>
                                 <strong>{project.name}</strong>
@@ -793,24 +841,87 @@ const WorkspacePage = () => {
                                 }
                               </span>
                             </button>
-                            <button
-                              type="button"
-                              className="project-edit"
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                openProjectEditor(project.id);
-                              }}
-                              aria-label={`Edit ${project.name}`}
-                              title="Edit project"
-                            >
-                              <svg
-                                viewBox="0 0 24 24"
-                                aria-hidden="true"
-                                focusable="false"
-                              >
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
-                              </svg>
-                            </button>
+                            <div className="project-row__actions">
+                              <div className="ticket-menu">
+                                <button
+                                  type="button"
+                                  className="ticket-action-btn ticket-option-btn"
+                                  onClick={(event) =>
+                                    handleProjectMenuToggle(event, project.id)
+                                  }
+                                  aria-haspopup="true"
+                                  aria-expanded={
+                                    activeProjectMenuId === project.id
+                                  }
+                                  aria-label={
+                                    activeProjectMenuId === project.id
+                                      ? `Hide actions for ${project.name}`
+                                      : `Show actions for ${project.name}`
+                                  }
+                                  ref={(node) => {
+                                    if (activeProjectMenuId === project.id) {
+                                      projectMenuTriggerRef.current = node;
+                                    }
+                                  }}
+                                >
+                                  <svg
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                                    focusable="false"
+                                  >
+                                    <path d="M12 6a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm0 6a2 2 0 110 4 2 2 0 010-4z" />
+                                  </svg>
+                                </button>
+                                {activeProjectMenuId === project.id && (
+                                  <div
+                                    className="ticket-menu__popover"
+                                    ref={(node) => {
+                                      if (activeProjectMenuId === project.id) {
+                                        projectMenuRef.current = node;
+                                      }
+                                    }}
+                                  >
+                                    <button
+                                      type="button"
+                                      className="ticket-action-btn"
+                                      onClick={(event) => {
+                                        event.stopPropagation();
+                                        closeProjectMenu();
+                                        clearProjectSelection();
+                                        openProjectEditor(project.id);
+                                      }}
+                                      aria-label={`Edit ${project.name}`}
+                                      title="Edit project"
+                                    >
+                                      <svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                        focusable="false"
+                                      >
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+                                      </svg>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      className="ticket-action-btn"
+                                      onClick={(event) =>
+                                        handleProjectCreateTicket(event, project)
+                                      }
+                                      aria-label={`Create ticket for ${project.name}`}
+                                      title="Create ticket"
+                                    >
+                                      <svg
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                        focusable="false"
+                                      >
+                                        <path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z" />
+                                      </svg>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                           </div>
                           {expandedProjectId === project.id && (
                             <div className="project-ticket-groups">
