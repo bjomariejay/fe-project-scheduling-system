@@ -154,6 +154,9 @@ const WorkspacePage = () => {
     start: number;
     end: number;
   } | null>(null);
+  const [workspaceBoardTab, setWorkspaceBoardTab] = useState<
+    "actions" | "reports"
+  >("actions");
 
   const filteredTickets = useMemo(() => {
     const search = ticketSearch.trim().toLowerCase();
@@ -555,132 +558,164 @@ const WorkspacePage = () => {
         >
           <article className="card home-card workspace-board">
             <section className="space-section">
-              <div className="space-section__actions">
+              <div className="workspace-board__tabs" role="tablist">
                 <button
-                  className="link-button outline"
                   type="button"
-                  onClick={openCreateProject}
+                  role="tab"
+                  aria-selected={workspaceBoardTab === "actions"}
+                  className={clsx("workspace-board__tab", {
+                    active: workspaceBoardTab === "actions",
+                  })}
+                  onClick={() => setWorkspaceBoardTab("actions")}
                 >
-                  + Project
+                  Actions
                 </button>
                 <button
-                  className="link-button outline"
                   type="button"
-                  onClick={openCreateTicket}
+                  role="tab"
+                  aria-selected={workspaceBoardTab === "reports"}
+                  className={clsx("workspace-board__tab", {
+                    active: workspaceBoardTab === "reports",
+                  })}
+                  onClick={() => setWorkspaceBoardTab("reports")}
                 >
-                  + Ticket
-                </button>
-              </div>
-              <div className="space-section__header">
-                <h4>Projects</h4>
-                <span className="muted">{projects.length} active</span>
-                <button
-                  type="button"
-                  className="collapse-btn"
-                  onClick={toggleProjectsCollapsed}
-                >
-                  {projectsCollapsed ? "▶" : "▼"}
+                  Reports
                 </button>
               </div>
-              <div
-                className={clsx("project-panel", {
-                  "is-collapsed": projectsCollapsed,
-                })}
-              >
-                <div className="project-list">
-                  {projects.map((project) => (
-                    <div key={project.id} className="project-item">
-                      <div className="project-row">
-                        <button
-                          type="button"
-                          className={clsx("project-main", {
-                            active: selectedProjectId === project.id,
-                          })}
-                          onClick={() => selectProject(project.id)}
-                        >
-                          <div>
-                            <strong>{project.name}</strong>
-                            <small>{project.ticketPrefix}</small>
-                          </div>
-                          <span className="project-number">
-                            {
-                              tickets.filter(
-                                (ticket) =>
-                                  ticket.projectId === project.id &&
-                                  ticket.status !== "archived",
-                              ).length
-                            }
-                          </span>
-                        </button>
-                        <button
-                          type="button"
-                          className="project-edit"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            openProjectEditor(project.id);
-                          }}
-                          aria-label={`Edit ${project.name}`}
-                          title="Edit project"
-                        >
-                          <svg
-                            viewBox="0 0 24 24"
-                            aria-hidden="true"
-                            focusable="false"
-                          >
-                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
-                          </svg>
-                        </button>
-                      </div>
-                      {expandedProjectId === project.id && (
-                        <div className="project-ticket-groups">
-                          {ticketGroups.map((group) => (
-                            <div
-                              key={group.key}
-                              className="project-ticket-group"
+              {workspaceBoardTab === "actions" ? (
+                <>
+                  <div className="space-section__actions">
+                    <button
+                      className="link-button outline"
+                      type="button"
+                      onClick={openCreateProject}
+                    >
+                      + Project
+                    </button>
+                    <button
+                      className="link-button outline"
+                      type="button"
+                      onClick={openCreateTicket}
+                    >
+                      + Ticket
+                    </button>
+                  </div>
+                  <div className="space-section__header">
+                    <h4>Projects</h4>
+                    <span className="muted">{projects.length} active</span>
+                    <button
+                      type="button"
+                      className="collapse-btn"
+                      onClick={toggleProjectsCollapsed}
+                    >
+                      {projectsCollapsed ? "▶" : "▼"}
+                    </button>
+                  </div>
+                  <div
+                    className={clsx("project-panel", {
+                      "is-collapsed": projectsCollapsed,
+                    })}
+                  >
+                    <div className="project-list">
+                      {projects.map((project) => (
+                        <div key={project.id} className="project-item">
+                          <div className="project-row">
+                            <button
+                              type="button"
+                              className={clsx("project-main", {
+                                active: selectedProjectId === project.id,
+                              })}
+                              onClick={() => selectProject(project.id)}
                             >
-                              <header>
-                                <strong>{group.label}</strong>
-                                <span className="badge">
-                                  {group.items.length}
-                                </span>
-                              </header>
-                              <ul>
-                                {group.items.length ? (
-                                  group.items.map((ticket) => (
-                                    <li key={ticket.id}>
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          void selectTicket(ticket.id)
-                                        }
-                                      >
-                                        <div>
-                                          <strong>
-                                            {ticket.ticketNumber} ·{" "}
-                                          </strong>
-                                        </div>
-                                        <span
-                                          className={clsx(
-                                            "status",
-                                            ticket.status,
-                                          )}
-                                        >
-                                          {ticket.status.replace("_", " ") === 'open' ? <>new</> : ticket.status.replace("_", " ")
-                                          }
-                                        </span>
-                                      </button>
-                                    </li>
-                                  ))
-                                ) : (
-                                  <li className="muted">No tickets</li>
-                                )}
-                              </ul>
+                              <div>
+                                <strong>{project.name}</strong>
+                                <small>{project.ticketPrefix}</small>
+                              </div>
+                              <span className="project-number">
+                                {
+                                  tickets.filter(
+                                    (ticket) =>
+                                      ticket.projectId === project.id &&
+                                      ticket.status !== "archived",
+                                  ).length
+                                }
+                              </span>
+                            </button>
+                            <button
+                              type="button"
+                              className="project-edit"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                openProjectEditor(project.id);
+                              }}
+                              aria-label={`Edit ${project.name}`}
+                              title="Edit project"
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+                              </svg>
+                            </button>
+                          </div>
+                          {expandedProjectId === project.id && (
+                            <div className="project-ticket-groups">
+                              {ticketGroups.map((group) => (
+                                <div
+                                  key={group.key}
+                                  className="project-ticket-group"
+                                >
+                                  <header>
+                                    <strong>{group.label}</strong>
+                                    <span className="badge">
+                                      {group.items.length}
+                                    </span>
+                                  </header>
+                                  <ul>
+                                    {group.items.length ? (
+                                      group.items.map((ticket) => (
+                                        <li key={ticket.id}>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              void selectTicket(ticket.id)
+                                            }
+                                          >
+                                            <div>
+                                              <strong>
+                                                {ticket.ticketNumber} ·{" "}
+                                              </strong>
+                                            </div>
+                                            <span
+                                              className={clsx(
+                                                "status",
+                                                ticket.status,
+                                              )}
+                                            >
+                                              {ticket.status.replace("_", " ") === "open"
+                                                ? "new"
+                                                : ticket.status.replace("_", " ")}
+                                            </span>
+                                          </button>
+                                        </li>
+                                      ))
+                                    ) : (
+                                      <li className="muted">No tickets</li>
+                                    )}
+                                  </ul>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                </>
+              ) : (
+                <div className="workspace-board__reports">
                   <div className="project-item report-project">
                     <button
                       type="button"
@@ -692,6 +727,7 @@ const WorkspacePage = () => {
                     >
                       <div>
                         <strong>Report of work</strong>
+                        <small className="muted">Latest activity summary</small>
                       </div>
                       <span className="project-number">View</span>
                     </button>
@@ -706,6 +742,7 @@ const WorkspacePage = () => {
                     >
                       <div>
                         <strong>Reviewer reports</strong>
+                        <small className="muted">Tickets awaiting review</small>
                       </div>
                       <span className="project-number">
                         {reviewerTicketCount}
@@ -713,7 +750,7 @@ const WorkspacePage = () => {
                     </button>
                   </div>
                 </div>
-              </div>
+              )}
             </section>
           </article>
         </section>

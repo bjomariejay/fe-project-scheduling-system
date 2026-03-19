@@ -602,6 +602,37 @@ textarea {
   gap: 0.5rem;
 }
 
+.workspace-board__tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid rgba(97, 31, 105, 0.15);
+  border-radius: 0.9rem;
+  background: #f8f5ff;
+  overflow: hidden;
+}
+
+.workspace-board__tab {
+  border: none;
+  background: transparent;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  color: #6b6f82;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.workspace-board__tab.active {
+  background: rgba(97, 31, 105, 0.1);
+  color: #40124c;
+}
+
+.workspace-board__reports {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
 .space-section {
   display: flex;
   flex-direction: column;
