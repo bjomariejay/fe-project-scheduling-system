@@ -1051,10 +1051,10 @@ const WorkspacePage = () => {
                     </span>
                   </header>
                   <section className="ticket-description">
-                    <label>
-                      Description:{" "}
+                    <label>Description</label>
+                    <p className="ticket-description__body">
                       {selectedTicket.description || "No description provided."}
-                    </label>
+                    </p>
                   </section>
                   <section className="ticket-info">
                     <div>
