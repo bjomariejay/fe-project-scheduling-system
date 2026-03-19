@@ -32,6 +32,7 @@ const WorkspacePage = () => {
     selectProject,
     toggleProjectsCollapsed,
     selectTicket,
+    clearSelectedTicket,
     updateCreateProjectField,
     updateProjectEditorField,
     updateCreateTicketField,
@@ -202,6 +203,13 @@ const WorkspacePage = () => {
       entry.displayName.toLowerCase().includes(search),
     );
   }, [dashboard, dashboardSearch]);
+
+  const hasTicketDetailView = Boolean(selectedTicket || lockedTicket);
+  const hideProjectsPanel = hasTicketDetailView && !viewingReportsForProjectId;
+
+  const handleBackToProjects = () => {
+    clearSelectedTicket();
+  };
 
   const ticketGroups = useMemo(() => {
     if (!selectedProjectId)
@@ -535,8 +543,16 @@ const WorkspacePage = () => {
 
   const renderHome = () => (
     <section className="main__view home-view" aria-label="Home">
-      <div className="home-layout">
-        <section className="home-layout__left">
+      <div
+        className={clsx("home-layout", {
+          "home-layout--detail-focus": hideProjectsPanel,
+        })}
+      >
+        <section
+          className={clsx("home-layout__left", {
+            "home-layout__left--hidden": hideProjectsPanel,
+          })}
+        >
           <article className="card home-card workspace-board">
             <section className="space-section">
               <div className="space-section__actions">
@@ -801,6 +817,19 @@ const WorkspacePage = () => {
             )
           ) : (
             <article className="card ticket-panel">
+              {hasTicketDetailView && (
+                <button
+                  type="button"
+                  className="ticket-panel__back"
+                  aria-label="Back to projects"
+                  title="Back to projects"
+                  onClick={handleBackToProjects}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M15.41 16.59 10.83 12l4.58-4.59L14 6l-6 6 6 6z" />
+                  </svg>
+                </button>
+              )}
               {selectedTicket ? (
                 <article className="ticket-detail">
                   <header>

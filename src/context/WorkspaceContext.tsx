@@ -223,6 +223,7 @@ interface WorkspaceContextValue {
   selectProject: (projectId: string) => void;
   toggleProjectsCollapsed: () => void;
   selectTicket: (ticketId: string) => Promise<void>;
+  clearSelectedTicket: () => void;
   refreshTicketDetail: (ticketId?: string) => Promise<void>;
   loadTickets: () => Promise<void>;
   loadDashboard: (filtersOverride?: DashboardFilter) => Promise<void>;
@@ -819,6 +820,10 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
 
   const toggleProjectsCollapsed = () => {
     mergeState({ projectsCollapsed: !stateRef.current.projectsCollapsed });
+  };
+
+  const clearSelectedTicket = () => {
+    mergeState({ selectedTicket: null, lockedTicket: null });
   };
 
   const selectTicket = async (ticketId: string) => {
@@ -1479,6 +1484,7 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       selectProject,
       toggleProjectsCollapsed,
       selectTicket,
+      clearSelectedTicket,
       refreshTicketDetail,
       loadTickets,
       loadDashboard,
