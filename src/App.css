@@ -542,7 +542,13 @@ textarea {
   gap: 0.35rem;
 }
 
-.project-ticket-group li button {
+.project-ticket-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.project-ticket-row__main {
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -554,10 +560,52 @@ textarea {
   background: #fff;
   box-shadow: 0 4px 8px rgba(15, 23, 42, 0.05);
   cursor: pointer;
+  text-align: left;
 }
 
-.project-ticket-group li button:hover {
+.project-ticket-row__main:hover,
+.project-ticket-row__main.active {
   background: #f4f1ff;
+}
+
+.project-ticket-row__actions {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.ticket-action-btn {
+  border: 1px solid rgba(97, 31, 105, 0.2);
+  background: rgba(97, 31, 105, 0.08);
+  color: #611f69;
+  width: 34px;
+  height: 34px;
+  border-radius: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.ticket-action-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.ticket-action-btn:hover {
+  background: rgba(97, 31, 105, 0.2);
+  transform: translateY(-1px);
+}
+
+.ticket-action-btn--danger {
+  border-color: rgba(208, 61, 41, 0.25);
+  background: rgba(208, 61, 41, 0.08);
+  color: #d03d29;
+}
+
+.ticket-action-btn--danger:hover {
+  background: rgba(208, 61, 41, 0.18);
 }
 
 .project-ticket-group small {

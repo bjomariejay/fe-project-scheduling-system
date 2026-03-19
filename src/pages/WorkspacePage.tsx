@@ -10,6 +10,7 @@ import UserSettingsModal from "../components/workspace/UserSettingsModal";
 import AdminEditModal from "../components/workspace/AdminEditModal";
 import ProjectEditorModal from "../components/workspace/ProjectEditorModal";
 import CreateTicketModal from "../components/workspace/CreateTicketModal";
+import TicketEditorModal from "../components/workspace/TicketEditorModal";
 import CreateProjectModal from "../components/workspace/CreateProjectModal";
 import { useAuth } from "../hooks/useAuth";
 import { useWorkspace } from "../hooks/useWorkspace";
@@ -35,6 +36,7 @@ const WorkspacePage = () => {
     clearSelectedTicket,
     updateCreateProjectField,
     updateProjectEditorField,
+    updateTicketEditorField,
     updateCreateTicketField,
     updateDmFormField,
     createProject,
@@ -66,7 +68,11 @@ const WorkspacePage = () => {
     closeCreateProject,
     openProjectEditor,
     closeProjectEditor,
+    openTicketEditor,
+    closeTicketEditor,
     removeProject,
+    saveTicketEditor,
+    removeTicket,
     openCreateTicket,
     closeCreateTicket,
     handleGlobalReportView,
@@ -112,6 +118,7 @@ const WorkspacePage = () => {
     showUserSettings,
     showCreateProject,
     showCreateTicket,
+    showTicketEditor,
     showProjectEditor,
     projectReportEntries,
     viewingReportsForProjectId,
@@ -126,6 +133,9 @@ const WorkspacePage = () => {
     projectEditorModel,
     projectEditorSaving,
     projectEditorDeleting,
+    ticketEditorModel,
+    ticketEditorSaving,
+    ticketEditorError,
   } = state;
 
   const [adminEditUser, setAdminEditUser] = useState<User | null>(null);
@@ -311,6 +321,19 @@ const WorkspacePage = () => {
   const handleTicketSubmit = (event: FormEvent) => {
     event.preventDefault();
     void createTicket();
+  };
+
+  const handleTicketEditSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    void saveTicketEditor();
+  };
+
+  const handleTicketDelete = (ticketId: string, ticketLabel: string) => {
+    const confirmed = window.confirm(
+      `Delete ticket ${ticketLabel}? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+    void removeTicket(ticketId);
   };
 
   const submitMessage = () => {
@@ -682,28 +705,86 @@ const WorkspacePage = () => {
                                     {group.items.length ? (
                                       group.items.map((ticket) => (
                                         <li key={ticket.id}>
-                                          <button
-                                            type="button"
-                                            onClick={() =>
-                                              void selectTicket(ticket.id)
-                                            }
-                                          >
-                                            <div>
-                                              <strong>
-                                                {ticket.ticketNumber} ·{" "}
-                                              </strong>
-                                            </div>
-                                            <span
+                                          <div className="project-ticket-row">
+                                            <button
+                                              type="button"
                                               className={clsx(
-                                                "status",
-                                                ticket.status,
+                                                "project-ticket-row__main",
+                                                {
+                                                  active:
+                                                    selectedTicket?.id ===
+                                                    ticket.id,
+                                                },
                                               )}
+                                              onClick={() =>
+                                                void selectTicket(ticket.id)
+                                              }
                                             >
-                                              {ticket.status.replace("_", " ") === "open"
-                                                ? "new"
-                                                : ticket.status.replace("_", " ")}
-                                            </span>
-                                          </button>
+                                              <div>
+                                                <strong>
+                                                  {ticket.ticketNumber} {" "}
+                                                </strong>
+                                               
+                                              </div>
+                                              <span
+                                                className={clsx(
+                                                  "status",
+                                                  ticket.status,
+                                                )}
+                                              >
+                                                {ticket.status.replace(
+                                                  "_",
+                                                  " ",
+                                                ) === "open"
+                                                  ? "new"
+                                                  : ticket.status.replace(
+                                                      "_",
+                                                      " ",
+                                                    )}
+                                              </span>
+                                            </button>
+                                            <div className="project-ticket-row__actions">
+                                              <button
+                                                type="button"
+                                                className="ticket-action-btn"
+                                                onClick={(event) => {
+                                                  event.stopPropagation();
+                                                  openTicketEditor(ticket.id);
+                                                }}
+                                                aria-label={`Edit ${ticket.ticketNumber}`}
+                                                title="Edit ticket"
+                                              >
+                                                <svg
+                                                  viewBox="0 0 24 24"
+                                                  aria-hidden="true"
+                                                  focusable="false"
+                                                >
+                                                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+                                                </svg>
+                                              </button>
+                                              <button
+                                                type="button"
+                                                className="ticket-action-btn ticket-action-btn--danger"
+                                                onClick={(event) => {
+                                                  event.stopPropagation();
+                                                  handleTicketDelete(
+                                                    ticket.id,
+                                                    ticket.ticketNumber,
+                                                  );
+                                                }}
+                                                aria-label={`Delete ${ticket.ticketNumber}`}
+                                                title="Delete ticket"
+                                              >
+                                                <svg
+                                                  viewBox="0 0 24 24"
+                                                  aria-hidden="true"
+                                                  focusable="false"
+                                                >
+                                                  <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1z" />
+                                                </svg>
+                                              </button>
+                                            </div>
+                                          </div>
                                         </li>
                                       ))
                                     ) : (
@@ -1371,6 +1452,19 @@ const WorkspacePage = () => {
     />
   );
 
+  const ticketEditorModal = (
+    <TicketEditorModal
+      isOpen={showTicketEditor}
+      form={ticketEditorModel}
+      projects={projects}
+      saving={ticketEditorSaving}
+      error={ticketEditorError}
+      onFieldChange={updateTicketEditorField}
+      onClose={closeTicketEditor}
+      onSubmit={handleTicketEditSubmit}
+    />
+  );
+
   const renderContent = () => (
     <TabContent
       activeTab={activeTab}
@@ -1543,6 +1637,7 @@ const WorkspacePage = () => {
       {createTicketModal}
       {createProjectModal}
       {dashboardTicketModal}
+      {ticketEditorModal}
       <ProjectEditorModal
         isOpen={showProjectEditor}
         form={projectEditorModel}

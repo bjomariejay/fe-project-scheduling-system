@@ -110,10 +110,15 @@ interface WorkspaceState {
   lastActivityViewTimestamp: string | null;
   showCreateProject: boolean;
   showCreateTicket: boolean;
+  showTicketEditor: boolean;
   showProjectEditor: boolean;
   projectEditorProjectId: string;
   projectEditorSaving: boolean;
   projectEditorDeleting: boolean;
+  ticketEditorTicketId: string;
+  ticketEditorModel: CreateTicketModel;
+  ticketEditorSaving: boolean;
+  ticketEditorError: string;
   projectReportEntries: ProjectReportEntry[];
   reviewerTickets: Ticket[];
   viewingReportsForProjectId: string;
@@ -200,10 +205,15 @@ const initialState: WorkspaceState = {
   lastActivityViewTimestamp: null,
   showCreateProject: false,
   showCreateTicket: false,
+  showTicketEditor: false,
   showProjectEditor: false,
   projectEditorProjectId: "",
   projectEditorSaving: false,
   projectEditorDeleting: false,
+  ticketEditorTicketId: "",
+  ticketEditorModel: defaultTicketModel,
+  ticketEditorSaving: false,
+  ticketEditorError: "",
   projectReportEntries: [],
   reviewerTickets: [],
   viewingReportsForProjectId: "",
@@ -241,12 +251,20 @@ interface WorkspaceContextValue {
     key: K,
     value: CreateProjectModel[K],
   ) => void;
+  updateTicketEditorField: <K extends keyof CreateTicketModel>(
+    key: K,
+    value: CreateTicketModel[K],
+  ) => void;
   updateDmFormField: <K extends keyof DmForm>(key: K, value: DmForm[K]) => void;
   createProject: () => Promise<void>;
   saveProjectEditor: () => Promise<void>;
   openProjectEditor: (projectId: string) => void;
   closeProjectEditor: () => void;
+  openTicketEditor: (ticketId: string) => void;
+  closeTicketEditor: () => void;
   removeProject: (projectId?: string) => Promise<void>;
+  saveTicketEditor: () => Promise<void>;
+  removeTicket: (ticketId: string) => Promise<void>;
   createTicket: () => Promise<void>;
   postTicketMessage: (body?: string) => Promise<void>;
   sendDm: () => Promise<void>;
@@ -940,6 +958,47 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  const openTicketEditor = (ticketId: string) => {
+    const ticket = stateRef.current.tickets.find((item) => item.id === ticketId);
+    if (!ticket) return;
+    mergeState({
+      showTicketEditor: true,
+      ticketEditorTicketId: ticketId,
+      ticketEditorModel: {
+        title: ticket.title,
+        description: ticket.description || "",
+        projectId: ticket.projectId,
+        estimatedHours: ticket.estimatedHours ?? 0,
+        privacy: ticket.privacy,
+        inviteeIds: [],
+        priority: ticket.priority,
+      },
+      ticketEditorError: "",
+    });
+  };
+
+  const closeTicketEditor = () => {
+    mergeState({
+      showTicketEditor: false,
+      ticketEditorTicketId: "",
+      ticketEditorModel: defaultTicketModel,
+      ticketEditorSaving: false,
+      ticketEditorError: "",
+    });
+  };
+
+  const updateTicketEditorField = <K extends keyof CreateTicketModel>(
+    key: K,
+    value: CreateTicketModel[K],
+  ) => {
+    mergeState({
+      ticketEditorModel: {
+        ...stateRef.current.ticketEditorModel,
+        [key]: value,
+      },
+    });
+  };
+
   const saveProjectEditor = async () => {
     const projectId = stateRef.current.projectEditorProjectId;
     if (!projectId) return;
@@ -1005,6 +1064,79 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       });
     } finally {
       mergeState({ projectEditorDeleting: false });
+    }
+  };
+
+  const saveTicketEditor = async () => {
+    const ticketId = stateRef.current.ticketEditorTicketId;
+    const actorId = stateRef.current.selectedUserId;
+    if (!ticketId || !actorId) return;
+    const { title, description, projectId, estimatedHours, priority, privacy } =
+      stateRef.current.ticketEditorModel;
+    if (!title.trim() || !projectId) {
+      mergeState({ ticketEditorError: "Title and project are required." });
+      return;
+    }
+    mergeState({ ticketEditorSaving: true, ticketEditorError: "" });
+    try {
+      const payload = {
+        actorId,
+        title: title.trim(),
+        description: description.trim(),
+        projectId,
+        estimatedHours,
+        priority,
+        privacy,
+      };
+      const updatedTicket = await apiClient.updateTicketSettings(ticketId, payload);
+      mergeState({
+        tickets: stateRef.current.tickets.map((ticket) =>
+          ticket.id === updatedTicket.id ? updatedTicket : ticket,
+        ),
+        feedback: "Ticket updated.",
+      });
+      await loadTickets();
+      if (stateRef.current.selectedTicket?.id === ticketId) {
+        await refreshTicketDetail(ticketId);
+      }
+      closeTicketEditor();
+    } catch (error: unknown) {
+      console.error("Unable to update ticket", error);
+      mergeState({
+        ticketEditorError:
+          getErrorMessage(error) || "Unable to update ticket.",
+      });
+    } finally {
+      mergeState({ ticketEditorSaving: false });
+    }
+  };
+
+  const removeTicket = async (ticketId: string) => {
+    const actorId = stateRef.current.selectedUserId;
+    if (!ticketId || !actorId) return;
+    try {
+      await apiClient.deleteTicket(ticketId, { actorId });
+      mergeState({
+        tickets: stateRef.current.tickets.filter((ticket) => ticket.id !== ticketId),
+        feedback: "Ticket deleted.",
+      });
+      if (stateRef.current.selectedTicket?.id === ticketId) {
+        mergeState({ selectedTicket: null });
+      }
+      if (
+        stateRef.current.showTicketEditor &&
+        stateRef.current.ticketEditorTicketId === ticketId
+      ) {
+        closeTicketEditor();
+      }
+      await loadTickets();
+    } catch (error: unknown) {
+      console.error("Unable to delete ticket", error);
+      const errorMessage = getErrorMessage(error) || "Unable to delete ticket.";
+      mergeState({
+        ticketEditorError: errorMessage,
+        feedback: errorMessage,
+      });
     }
   };
 
@@ -1493,12 +1625,17 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       updateCreateTicketField,
       updateCreateProjectField,
       updateProjectEditorField,
+      updateTicketEditorField,
       updateDmFormField,
       createProject,
       saveProjectEditor,
       openProjectEditor,
       closeProjectEditor,
+      openTicketEditor,
+      closeTicketEditor,
       removeProject,
+      saveTicketEditor,
+      removeTicket,
       createTicket,
       postTicketMessage,
       startTicket,

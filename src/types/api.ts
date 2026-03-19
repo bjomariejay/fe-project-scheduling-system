@@ -186,6 +186,9 @@ export interface UpdateTicketSettingsPayload {
   estimatedHours?: number | null;
   title?: string;
   actualHours?: number | null;
+  projectId?: string;
+  privacy?: TicketPrivacy;
+  description?: string | null;
 }
 
 export interface SendDmPayload {
