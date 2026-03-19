@@ -157,7 +157,7 @@ export interface CreateTicketPayload {
   privacy?: TicketPrivacy;
   additionalMemberIds?: string[];
   priority?: TicketPriority;
-  reviewerId?: string;
+  reviewerId?: string | null;
 }
 
 export interface CreateProjectPayload {

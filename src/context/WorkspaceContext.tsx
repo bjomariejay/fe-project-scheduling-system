@@ -327,6 +327,15 @@ const DM_VIEW_KEY = (userId: string) => `tsfe:dms:lastViewed:${userId}`;
 const GLOBAL_REPORT_PROJECT_ID = "global-reports";
 const REVIEWER_REPORT_PROJECT_ID = "reviewer-reports";
 
+const sanitizeTicketReviewer = <T extends { reviewerId?: string | null; creatorId: string }>(
+  ticket: T,
+): T => {
+  if (ticket.reviewerId && ticket.reviewerId === ticket.creatorId) {
+    return { ...ticket, reviewerId: null };
+  }
+  return ticket;
+};
+
 export const WorkspaceContext = createContext<
   WorkspaceContextValue | undefined
 >(undefined);
@@ -449,7 +458,8 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
     mergeState({ isLoadingTickets: true });
     try {
       const tickets = await apiClient.getTickets({});
-      mergeState({ tickets });
+      const normalizedTickets = tickets.map(sanitizeTicketReviewer);
+      mergeState({ tickets: normalizedTickets });
       if (stateRef.current.selectedTicket || stateRef.current.lockedTicket) {
         await refreshTicketDetail();
       }
@@ -719,8 +729,11 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
         apiClient.getReviewerReports(reviewerId),
         apiClient.getTickets({ reviewerId }),
       ]);
-      const inProgressReviewerTickets = reviewerTickets.filter(
-        (ticket) => ticket.status === "in_progress",
+      const normalizedReviewerTickets = reviewerTickets.map(
+        sanitizeTicketReviewer,
+      );
+      const inProgressReviewerTickets = normalizedReviewerTickets.filter(
+        (ticket) => ticket.status === "in_progress" && ticket.reviewerId,
       );
       const reviewer = stateRef.current.users.find(
         (user) => user.id === reviewerId,
@@ -862,8 +875,9 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
     });
     try {
       const ticket = await apiClient.getTicket(ticketId);
+      const normalizedTicket = sanitizeTicketReviewer(ticket);
       mergeState({
-        selectedTicket: ticket,
+        selectedTicket: normalizedTicket,
         messageDraft: "",
         lockedTicket: null,
       });
@@ -1202,6 +1216,7 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
       const ticket = await apiClient.createTicket({
         ...stateRef.current.createTicketModel,
         creatorId,
+        reviewerId: null,
       });
       mergeState({
         createTicketModel: {
