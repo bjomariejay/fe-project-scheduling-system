@@ -208,10 +208,15 @@ const WorkspacePage = () => {
   }, [dashboard, dashboardSearch]);
 
   const hasTicketDetailView = Boolean(selectedTicket || lockedTicket);
-  const hideProjectsPanel = hasTicketDetailView && !viewingReportsForProjectId;
+  const hasReportDetailView = Boolean(viewingReportsForProjectId);
+  const hideProjectsPanel = hasTicketDetailView || hasReportDetailView;
 
   const handleBackToProjects = () => {
     clearSelectedTicket();
+  };
+
+  const handleBackToReports = () => {
+    closeProjectReports();
   };
 
   const ticketGroups = useMemo(() => {
@@ -758,6 +763,17 @@ const WorkspacePage = () => {
           {viewingReportsForProjectId ? (
             isReviewerReportView ? (
               <section className="card reviewer-reports">
+                <button
+                  type="button"
+                  className="report-panel__back"
+                  aria-label="Back to reports"
+                  title="Back to reports"
+                  onClick={handleBackToReports}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M15.41 16.59 10.83 12l4.58-4.59L14 6l-6 6 6 6z" />
+                  </svg>
+                </button>
                 {projectReportsLoading ? (
                   <p className="muted">Loading reports…</p>
                 ) : null}
@@ -806,6 +822,17 @@ const WorkspacePage = () => {
               </section>
             ) : (
               <section className="card project-reports">
+                <button
+                  type="button"
+                  className="report-panel__back"
+                  aria-label="Back to reports"
+                  title="Back to reports"
+                  onClick={handleBackToReports}
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M15.41 16.59 10.83 12l4.58-4.59L14 6l-6 6 6 6z" />
+                  </svg>
+                </button>
                 {projectReportsLoading ? (
                   <p className="muted">Loading reports…</p>
                 ) : projectReportEntries.length === 0 ? (
