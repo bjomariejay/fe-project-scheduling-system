@@ -18,9 +18,9 @@ import { NotificationItem, Ticket, User } from "../types/api";
 import { getErrorMessage } from "../utils/errors";
 
 const ticketCategoryConfig = [
-  { key: "open", label: "New" },
-  { key: "in_progress", label: "In progress" },
-  { key: "archived", label: "Archived" },
+  { key: "open", label: "New", class: "open" },
+  { key: "in_progress", label: "In progress", class: "in_progress" },
+  { key: "archived", label: "Archived" , class: "archived"}
 ] as const;
 
 const WorkspacePage = () => {
@@ -231,7 +231,7 @@ const WorkspacePage = () => {
 
   const ticketGroups = useMemo(() => {
     if (!selectedProjectId)
-      return [] as Array<{ key: string; label: string; items: Ticket[] }>;
+      return [] as Array<{ key: string; label: string; items: Ticket[], class: string}>;
     return ticketCategoryConfig.map((category) => ({
       ...category,
       items: filteredTickets.filter(
@@ -696,7 +696,10 @@ const WorkspacePage = () => {
                                   className="project-ticket-group"
                                 >
                                   <header>
-                                    <strong>{group.label}</strong>
+                                    <strong  className={clsx(
+                                                  "status",
+                                                  group.class,
+                                                )}>{group.label}</strong>
                                     <span className="badge">
                                       {group.items.length}
                                     </span>
@@ -726,22 +729,7 @@ const WorkspacePage = () => {
                                                 </strong>
                                                
                                               </div>
-                                              <span
-                                                className={clsx(
-                                                  "status",
-                                                  ticket.status,
-                                                )}
-                                              >
-                                                {ticket.status.replace(
-                                                  "_",
-                                                  " ",
-                                                ) === "open"
-                                                  ? "new"
-                                                  : ticket.status.replace(
-                                                      "_",
-                                                      " ",
-                                                    )}
-                                              </span>
+                                              
                                             </button>
                                             <div className="project-ticket-row__actions">
                                               <button

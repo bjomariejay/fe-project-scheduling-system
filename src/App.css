@@ -589,14 +589,16 @@ textarea {
   border: 1px solid rgba(97, 31, 105, 0.2);
   background: rgba(97, 31, 105, 0.08);
   color: #611f69;
-  width: 34px;
-  height: 34px;
+  width: 24px;
+  height: 24px;
   border-radius: 0.6rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .ticket-action-btn svg {
@@ -678,7 +680,9 @@ textarea {
   font-weight: 600;
   color: #6b6f82;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 .workspace-board__tab.active {
@@ -1160,7 +1164,9 @@ textarea {
   width: 38px;
   height: 38px;
   border-radius: 999px;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .ticket-panel__back:hover {
@@ -1187,7 +1193,9 @@ textarea {
   height: 38px;
   border-radius: 999px;
   padding: 0;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
   margin-bottom: 0.75rem;
 }
 
@@ -1895,7 +1903,9 @@ textarea {
   width: 38px;
   height: 38px;
   border-radius: 999px;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .dm-thread__back:hover {
@@ -2042,7 +2052,7 @@ textarea {
 }
 
 @media (max-width: 1100px) {
-  .main__view{
+  .main__view {
     overflow: scroll;
   }
   .dm-panel__layout {
@@ -2305,12 +2315,12 @@ textarea {
     bottom: 0;
   }
 
-  .sign-out-btn{
+  .sign-out-btn {
     position: absolute;
     right: 15px;
   }
 
-  .main__header{
+  .main__header {
     display: grid;
   }
 
