@@ -1884,6 +1884,14 @@ textarea {
   .ticket-panel__back {
     display: inline-flex;
   }
+
+  .ticket-panel {
+    display: none;
+  }
+
+  .ticket-panel.ticket-panel--visible-mobile {
+    display: flex;
+  }
 }
 
 @media (max-width: 640px) {

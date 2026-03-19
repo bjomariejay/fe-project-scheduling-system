@@ -853,7 +853,11 @@ const WorkspacePage = () => {
               </section>
             )
           ) : (
-            <article className="card ticket-panel">
+            <article
+              className={clsx("card ticket-panel", {
+                "ticket-panel--visible-mobile": hasTicketDetailView,
+              })}
+            >
               {hasTicketDetailView && (
                 <button
                   type="button"
