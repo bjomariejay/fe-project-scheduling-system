@@ -1520,7 +1520,10 @@ const WorkspacePage = () => {
               className={clsx({ active: activeTab === "dashboard" })}
               onClick={() => setActiveTab("dashboard")}
             >
-              Dashboard
+              <span className="primary-nav__icon" aria-hidden="true">
+                📊
+              </span>
+              <span className="primary-nav__label">Dashboard</span>
             </button>
           )}
           <button
@@ -1528,7 +1531,8 @@ const WorkspacePage = () => {
             className={clsx({ active: activeTab === "home" })}
             onClick={() => setActiveTab("home")}
           >
-            Home
+            <span className="primary-nav__icon" aria-hidden="true">🏠</span>
+            <span className="primary-nav__label">Home</span>
           </button>
           <button
             type="button"
@@ -1538,7 +1542,8 @@ const WorkspacePage = () => {
             })}
             onClick={() => setActiveTab("dms")}
           >
-            DMs
+            <span className="primary-nav__icon" aria-hidden="true">💬</span>
+            <span className="primary-nav__label">DMs</span>
           </button>
           <button
             type="button"
@@ -1548,7 +1553,8 @@ const WorkspacePage = () => {
             })}
             onClick={() => setActiveTab("activity")}
           >
-            Activity
+            <span className="primary-nav__icon" aria-hidden="true">🔔</span>
+            <span className="primary-nav__label">Activity</span>
           </button>
         </nav>
         <div className="sidebar__footer">
