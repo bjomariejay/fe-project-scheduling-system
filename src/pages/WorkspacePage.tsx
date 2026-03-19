@@ -271,7 +271,9 @@ const WorkspacePage = () => {
     setShowUserMenu((prev) => !prev);
   };
 
-  const handleSignOut = () => {
+  const handleSignOutClick = () => {
+    const confirmed = window.confirm("Are you sure you want to sign out?");
+    if (!confirmed) return;
     setShowUserMenu(false);
     void logout();
   };
@@ -1724,7 +1726,7 @@ const WorkspacePage = () => {
                       <button
                         type="button"
                         className="sign-out-btn"
-                        onClick={handleSignOut}
+                        onClick={handleSignOutClick}
                       >
                         Sign out
                       </button>
