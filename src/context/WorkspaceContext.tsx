@@ -394,6 +394,17 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated ? 30000 : null,
   );
 
+  useEffect(() => {
+    if (!user || !isAuthenticated) {
+      return;
+    }
+    const desiredTab =
+      (user.handle || "").toLowerCase() === "admin" ? "dashboard" : "home";
+    if (stateRef.current.activeTab !== desiredTab) {
+      mergeState({ activeTab: desiredTab });
+    }
+  }, [isAuthenticated, mergeState, user?.handle]);
+
   const loadUsers = useCallback(async () => {
     try {
       const users = await apiClient.getUsers();
