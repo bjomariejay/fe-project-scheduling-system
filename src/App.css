@@ -1729,11 +1729,11 @@ textarea {
 
 .dm-panel__layout {
   display: grid;
-  grid-template-columns: minmax(260px, 340px) 1fr;
+  grid-template-columns: minmax(260px, 320px) 1fr;
   gap: 1.5rem;
 }
 
-.dm-panel__compose {
+.dm-panel__list {
   background: rgba(255, 255, 255, 0.92);
   border-radius: 1.2rem;
   border: 1px solid rgba(97, 31, 105, 0.1);
@@ -1741,12 +1741,15 @@ textarea {
   box-shadow: 0 15px 35px rgba(33, 3, 33, 0.08);
 }
 
-.dm-panel__thread {
+.dm-panel__conversation {
   background: rgba(255, 255, 255, 0.85);
   border-radius: 1.2rem;
   border: 1px solid rgba(97, 31, 105, 0.08);
   padding: 1.25rem;
   min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
 .dm-recipient-field {
@@ -1757,20 +1760,102 @@ textarea {
   color: #3d0f4b;
 }
 
-.dm-recipient-field select {
-  border-radius: 0.8rem;
-  border: 1px solid #dfe3ef;
-  padding: 0.55rem 0.75rem;
-  font-weight: 500;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+.dm-user-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
 }
 
-.dm-recipient-field select:focus {
-  outline: none;
-  border-color: #b27ad0;
-  box-shadow: 0 0 0 3px rgba(178, 122, 208, 0.15);
+.dm-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.95rem;
+  border: 1px solid transparent;
+  padding: 0.65rem 0.8rem;
+  background: rgba(248, 241, 255, 0.6);
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dm-user:hover {
+  background: rgba(248, 241, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.dm-user.active {
+  border-color: rgba(97, 31, 105, 0.3);
+  background: rgba(97, 31, 105, 0.08);
+}
+
+.dm-user__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(97, 31, 105, 0.15);
+  color: #2b0936;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.dm-user__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.dm-user__info strong {
+  font-size: 0.95rem;
+  color: #2b0936;
+}
+
+.dm-user__info small {
+  color: #6f5b85;
+}
+
+.dm-thread__back {
+  align-self: flex-start;
+  border: 1px solid rgba(97, 31, 105, 0.2);
+  background: rgba(97, 31, 105, 0.1);
+  color: #611f69;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.dm-thread__back:hover {
+  background: rgba(97, 31, 105, 0.2);
+  transform: translateX(-2px);
+}
+
+.dm-thread__back svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.dm-conversation__header h4 {
+  margin: 0;
+  color: #2b0936;
+}
+
+.dm-conversation__header small {
+  color: #6f5b85;
 }
 
 .dm-message-form {
@@ -1902,6 +1987,23 @@ textarea {
   }
   .dm-panel__layout {
     grid-template-columns: 1fr;
+    position: relative;
+  }
+
+  .dm-panel__conversation {
+    display: none;
+  }
+
+  .dm-thread__back {
+    display: inline-flex;
+  }
+
+  .dm-panel__layout--mobile-thread .dm-panel__conversation {
+    display: flex;
+  }
+
+  .dm-panel__layout--mobile-thread .dm-panel__list {
+    display: none;
   }
 
   .home-layout--detail-focus {
