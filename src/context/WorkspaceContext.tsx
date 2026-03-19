@@ -271,7 +271,7 @@ interface WorkspaceContextValue {
   sendDm: () => Promise<void>;
   startTicket: () => Promise<void>;
   handleAssign: (userId: string) => Promise<void>;
-  updateTicketReviewer: (reviewerId: string) => Promise<void>;
+  updateTicketReviewer: (reviewerId: string | null) => Promise<void>;
   updateTicketEstimate: (hours: number) => Promise<void>;
   updateTicketActualTime: (hours: number) => Promise<void>;
   quickUpdateTicket: (
@@ -327,10 +327,27 @@ const DM_VIEW_KEY = (userId: string) => `tsfe:dms:lastViewed:${userId}`;
 const GLOBAL_REPORT_PROJECT_ID = "global-reports";
 const REVIEWER_REPORT_PROJECT_ID = "reviewer-reports";
 
-const sanitizeTicketReviewer = <T extends { reviewerId?: string | null; creatorId: string }>(
-  ticket: T,
-): T => {
-  if (ticket.reviewerId && ticket.reviewerId === ticket.creatorId) {
+const manualReviewerTickets = new Set<string>();
+
+const sanitizeTicketReviewer = <
+  T extends {
+    id: string;
+    reviewerId?: string | null;
+    creatorId: string;
+    createdAt?: string;
+    updatedAt?: string;
+  },
+>(ticket: T): T => {
+  if (manualReviewerTickets.has(ticket.id)) {
+    return ticket;
+  }
+  if (
+    ticket.reviewerId &&
+    ticket.reviewerId === ticket.creatorId &&
+    ticket.createdAt &&
+    ticket.updatedAt &&
+    ticket.createdAt === ticket.updatedAt
+  ) {
     return { ...ticket, reviewerId: null };
   }
   return ticket;
@@ -351,6 +368,7 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const resetWorkspaceState = useCallback(() => {
+    manualReviewerTickets.clear();
     setState(() => ({
       ...initialState,
       workspaceLabel: defaultWorkspaceLabel,
@@ -1273,31 +1291,33 @@ export const WorkspaceProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const handleAssign = async (assigneeId: string) => {
-    if (
-      !stateRef.current.selectedTicket ||
-      !assigneeId ||
-      !stateRef.current.selectedUserId
-    )
-      return;
-    await apiClient.assignTicket(
-      stateRef.current.selectedTicket.id,
-      assigneeId,
-      stateRef.current.selectedUserId,
-    );
+    const actorId = stateRef.current.selectedUserId;
+    const ticket = stateRef.current.selectedTicket;
+    if (!ticket || !assigneeId || !actorId) return;
+    const preservedReviewer = ticket.reviewerId ?? null;
+    await apiClient.assignTicket(ticket.id, assigneeId, actorId);
+    if (preservedReviewer) {
+      await apiClient.updateTicketReviewer(ticket.id, {
+        reviewerId: null,
+        actorId,
+      });
+    }
     await refreshTicketDetail();
   };
 
-  const updateTicketReviewer = async (reviewerId: string) => {
-    if (
-      !stateRef.current.selectedTicket ||
-      !reviewerId ||
-      !stateRef.current.selectedUserId
-    )
-      return;
-    await apiClient.updateTicketReviewer(stateRef.current.selectedTicket.id, {
+  const updateTicketReviewer = async (reviewerId: string | null) => {
+    const ticketId = stateRef.current.selectedTicket?.id;
+    const actorId = stateRef.current.selectedUserId;
+    if (!ticketId || !actorId) return;
+    await apiClient.updateTicketReviewer(ticketId, {
       reviewerId,
-      actorId: stateRef.current.selectedUserId,
+      actorId,
     });
+    if (reviewerId) {
+      manualReviewerTickets.add(ticketId);
+    } else {
+      manualReviewerTickets.delete(ticketId);
+    }
     await refreshTicketDetail();
     await loadTickets();
   };
