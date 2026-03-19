@@ -95,7 +95,7 @@ const CreateTicketModal = ({
           <label style={{display: 'contents'}}>
             Description: &nbsp;
             <textarea
-              rows={3}
+              rows={5}
               value={form.description}
               placeholder="Add context, goals, or reproduction steps"
               onChange={(event) => onFieldChange("description", event.target.value)}

@@ -1,6 +1,7 @@
 import {
   FormEvent,
   KeyboardEvent,
+  MouseEvent as ReactMouseEvent,
   useEffect,
   useMemo,
   useRef,
@@ -178,6 +179,11 @@ const WorkspacePage = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef<HTMLDivElement | null>(null);
   const userMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const [activeTicketMenuId, setActiveTicketMenuId] = useState<string | null>(
+    null,
+  );
+  const ticketMenuRef = useRef<HTMLDivElement | null>(null);
+  const ticketMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const filteredTickets = useMemo(() => {
     const search = ticketSearch.trim().toLowerCase();
@@ -221,21 +227,55 @@ const WorkspacePage = () => {
   }, [ticketSearch, tickets]);
 
   useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (!(event.target instanceof Node)) return;
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
       if (
-        userMenuRef.current?.contains(event.target) ||
-        userMenuTriggerRef.current?.contains(event.target)
+        userMenuRef.current?.contains(target) ||
+        userMenuTriggerRef.current?.contains(target)
       ) {
         return;
       }
       setShowUserMenu(false);
     };
     document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
     };
   }, []);
+
+  useEffect(() => {
+    if (!activeTicketMenuId) return;
+    const handleOutsideMenuClick = (event: MouseEvent | TouchEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (
+        ticketMenuRef.current?.contains(target) ||
+        ticketMenuTriggerRef.current?.contains(target)
+      ) {
+        return;
+      }
+      setActiveTicketMenuId(null);
+    };
+    document.addEventListener("mousedown", handleOutsideMenuClick);
+    document.addEventListener("touchstart", handleOutsideMenuClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideMenuClick);
+      document.removeEventListener("touchstart", handleOutsideMenuClick);
+    };
+  }, [activeTicketMenuId]);
+
+  useEffect(() => {
+    if (activeTicketMenuId) return;
+    ticketMenuRef.current = null;
+    ticketMenuTriggerRef.current = null;
+  }, [activeTicketMenuId]);
+
+  useEffect(() => {
+    setActiveTicketMenuId(null);
+  }, [expandedProjectId, selectedProjectId]);
 
   const userInitial = (() => {
     const pickInitial = (value?: string | null) => {
@@ -408,6 +448,18 @@ const WorkspacePage = () => {
     );
     if (!confirmed) return;
     void removeTicket(ticketId);
+  };
+
+  const closeTicketMenu = () => setActiveTicketMenuId(null);
+
+  const handleTicketMenuToggle = (
+    event: ReactMouseEvent<HTMLButtonElement>,
+    ticketId: string,
+  ) => {
+    event.stopPropagation();
+    setActiveTicketMenuId((current) =>
+      current === ticketId ? null : ticketId,
+    );
   };
 
   const submitMessage = () => {
@@ -792,9 +844,10 @@ const WorkspacePage = () => {
                                                     ticket.id,
                                                 },
                                               )}
-                                              onClick={() =>
-                                                void selectTicket(ticket.id)
-                                              }
+                                              onClick={() => {
+                                                closeTicketMenu();
+                                                void selectTicket(ticket.id);
+                                              }}
                                             >
                                               <div>
                                                 <strong>
@@ -803,45 +856,105 @@ const WorkspacePage = () => {
                                               </div>
                                             </button>
                                             <div className="project-ticket-row__actions">
-                                              <button
-                                                type="button"
-                                                className="ticket-action-btn"
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  openTicketEditor(ticket.id);
-                                                }}
-                                                aria-label={`Edit ${ticket.ticketNumber}`}
-                                                title="Edit ticket"
-                                              >
-                                                <svg
-                                                  viewBox="0 0 24 24"
-                                                  aria-hidden="true"
-                                                  focusable="false"
+                                              <div className="ticket-menu">
+                                                <button
+                                                  type="button"
+                                                  className="ticket-action-btn ticket-option-btn"
+                                                  onClick={(event) =>
+                                                    handleTicketMenuToggle(
+                                                      event,
+                                                      ticket.id,
+                                                    )
+                                                  }
+                                                  aria-haspopup="true"
+                                                  aria-expanded={
+                                                    activeTicketMenuId ===
+                                                    ticket.id
+                                                  }
+                                                  aria-label={
+                                                    activeTicketMenuId ===
+                                                    ticket.id
+                                                      ? `Hide actions for ${ticket.ticketNumber}`
+                                                      : `Show actions for ${ticket.ticketNumber}`
+                                                  }
+                                                  ref={(node) => {
+                                                    if (
+                                                      activeTicketMenuId ===
+                                                      ticket.id
+                                                    ) {
+                                                      ticketMenuTriggerRef.current =
+                                                        node;
+                                                    }
+                                                  }}
                                                 >
-                                                  <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
-                                                </svg>
-                                              </button>
-                                              <button
-                                                type="button"
-                                                className="ticket-action-btn ticket-action-btn--danger"
-                                                onClick={(event) => {
-                                                  event.stopPropagation();
-                                                  handleTicketDelete(
-                                                    ticket.id,
-                                                    ticket.ticketNumber,
-                                                  );
-                                                }}
-                                                aria-label={`Delete ${ticket.ticketNumber}`}
-                                                title="Delete ticket"
-                                              >
-                                                <svg
-                                                  viewBox="0 0 24 24"
-                                                  aria-hidden="true"
-                                                  focusable="false"
-                                                >
-                                                  <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1z" />
-                                                </svg>
-                                              </button>
+                                                  <svg
+                                                    viewBox="0 0 24 24"
+                                                    aria-hidden="true"
+                                                    focusable="false"
+                                                  >
+                                                    <path d="M12 6a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm0 6a2 2 0 110 4 2 2 0 010-4z" />
+                                                  </svg>
+                                                </button>
+                                                {activeTicketMenuId ===
+                                                  ticket.id && (
+                                                  <div
+                                                    className="ticket-menu__popover"
+                                                    ref={(node) => {
+                                                      if (
+                                                        activeTicketMenuId ===
+                                                        ticket.id
+                                                      ) {
+                                                        ticketMenuRef.current =
+                                                          node;
+                                                      }
+                                                    }}
+                                                  >
+                                                    <button
+                                                      type="button"
+                                                      className="ticket-action-btn"
+                                                      onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        closeTicketMenu();
+                                                        openTicketEditor(
+                                                          ticket.id,
+                                                        );
+                                                      }}
+                                                      aria-label={`Edit ${ticket.ticketNumber}`}
+                                                      title="Edit ticket"
+                                                    >
+                                                      <svg
+                                                        viewBox="0 0 24 24"
+                                                        aria-hidden="true"
+                                                        focusable="false"
+                                                      >
+                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+                                                      </svg>
+                                                    </button>
+                                                    <button
+                                                      type="button"
+                                                      className="ticket-action-btn ticket-action-btn--danger"
+                                                      onClick={(event) => {
+                                                        event.stopPropagation();
+                                                        closeTicketMenu();
+                                                        handleTicketDelete(
+                                                          ticket.id,
+                                                          ticket.ticketNumber,
+                                                        );
+                                                      }}
+                                                      aria-label={`Delete ${ticket.ticketNumber}`}
+                                                      title="Delete ticket"
+                                                    >
+                                                      <svg
+                                                        viewBox="0 0 24 24"
+                                                        aria-hidden="true"
+                                                        focusable="false"
+                                                      >
+                                                        <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1z" />
+                                                      </svg>
+                                                    </button>
+                                                  </div>
+                                                )}
+                                              </div>
                                             </div>
                                           </div>
                                         </li>
