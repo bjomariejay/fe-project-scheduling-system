@@ -1,4 +1,11 @@
-import { FormEvent, KeyboardEvent, useMemo, useState } from "react";
+import {
+  FormEvent,
+  KeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import clsx from "clsx";
 import Loader from "../components/Loader";
 import ActivityPanel from "../components/workspace/ActivityPanel";
@@ -20,7 +27,7 @@ import { getErrorMessage } from "../utils/errors";
 const ticketCategoryConfig = [
   { key: "open", label: "New", class: "open" },
   { key: "in_progress", label: "In progress", class: "in_progress" },
-  { key: "archived", label: "Archived" , class: "archived"}
+  { key: "archived", label: "Archived", class: "archived" },
 ] as const;
 
 const WorkspacePage = () => {
@@ -167,6 +174,9 @@ const WorkspacePage = () => {
   const [workspaceBoardTab, setWorkspaceBoardTab] = useState<
     "actions" | "reports"
   >("actions");
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const userMenuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   const filteredTickets = useMemo(() => {
     const search = ticketSearch.trim().toLowerCase();
@@ -209,6 +219,57 @@ const WorkspacePage = () => {
       .slice(0, 5);
   }, [ticketSearch, tickets]);
 
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (!(event.target instanceof Node)) return;
+      if (
+        userMenuRef.current?.contains(event.target) ||
+        userMenuTriggerRef.current?.contains(event.target)
+      ) {
+        return;
+      }
+      setShowUserMenu(false);
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, []);
+
+  const userInitial = (() => {
+    const pickInitial = (value?: string | null) => {
+      if (!value) return "";
+      const trimmed = value.trim();
+      return trimmed ? trimmed.charAt(0).toUpperCase() : "";
+    };
+    return (
+      pickInitial(user?.displayName) ||
+      pickInitial(user?.handle) ||
+      pickInitial(user?.username) ||
+      "?"
+    );
+  })();
+
+  type UserWithAvatar = User & {
+    avatarUrl?: string | null;
+    photoUrl?: string | null;
+    imageUrl?: string | null;
+  };
+  const resolvedAvatarUrl =
+    (user as UserWithAvatar | null)?.avatarUrl ??
+    (user as UserWithAvatar | null)?.photoUrl ??
+    (user as UserWithAvatar | null)?.imageUrl ??
+    null;
+
+  const handleUserMenuToggle = () => {
+    setShowUserMenu((prev) => !prev);
+  };
+
+  const handleSignOut = () => {
+    setShowUserMenu(false);
+    void logout();
+  };
+
   const filteredDashboardEntries = useMemo(() => {
     const search = dashboardSearch.trim().toLowerCase();
     if (!search) return dashboard;
@@ -231,7 +292,12 @@ const WorkspacePage = () => {
 
   const ticketGroups = useMemo(() => {
     if (!selectedProjectId)
-      return [] as Array<{ key: string; label: string; items: Ticket[], class: string}>;
+      return [] as Array<{
+        key: string;
+        label: string;
+        items: Ticket[];
+        class: string;
+      }>;
     return ticketCategoryConfig.map((category) => ({
       ...category,
       items: filteredTickets.filter(
@@ -499,9 +565,7 @@ const WorkspacePage = () => {
       closeAdminEdit();
     } catch (error: unknown) {
       console.error("Unable to update user", error);
-      setAdminEditError(
-        getErrorMessage(error) || "Unable to update user.",
-      );
+      setAdminEditError(getErrorMessage(error) || "Unable to update user.");
     } finally {
       setAdminEditSaving(false);
     }
@@ -696,10 +760,11 @@ const WorkspacePage = () => {
                                   className="project-ticket-group"
                                 >
                                   <header>
-                                    <strong  className={clsx(
-                                                  "status",
-                                                  group.class,
-                                                )}>{group.label}</strong>
+                                    <strong
+                                      className={clsx("status", group.class)}
+                                    >
+                                      {group.label}
+                                    </strong>
                                     <span className="badge">
                                       {group.items.length}
                                     </span>
@@ -725,11 +790,9 @@ const WorkspacePage = () => {
                                             >
                                               <div>
                                                 <strong>
-                                                  {ticket.ticketNumber} {" "}
+                                                  {ticket.ticketNumber}{" "}
                                                 </strong>
-                                               
                                               </div>
-                                              
                                             </button>
                                             <div className="project-ticket-row__actions">
                                               <button
@@ -874,7 +937,9 @@ const WorkspacePage = () => {
                                 type="button"
                                 className="report-ticket-link"
                                 onClick={() =>
-                                  handleReportTicketNavigate(ticket.ticketNumber)
+                                  handleReportTicketNavigate(
+                                    ticket.ticketNumber,
+                                  )
                                 }
                               >
                                 View ticket
@@ -978,7 +1043,10 @@ const WorkspacePage = () => {
                     </span>
                   </header>
                   <section className="ticket-description">
-                    <label>Description:  {selectedTicket.description || "No description provided."}</label>
+                    <label>
+                      Description:{" "}
+                      {selectedTicket.description || "No description provided."}
+                    </label>
                   </section>
                   <section className="ticket-info">
                     <div>
@@ -1519,7 +1587,9 @@ const WorkspacePage = () => {
             className={clsx({ active: activeTab === "home" })}
             onClick={() => setActiveTab("home")}
           >
-            <span className="primary-nav__icon" aria-hidden="true">🏠</span>
+            <span className="primary-nav__icon" aria-hidden="true">
+              🏠
+            </span>
             <span className="primary-nav__label">Home</span>
           </button>
           <button
@@ -1530,7 +1600,9 @@ const WorkspacePage = () => {
             })}
             onClick={() => setActiveTab("dms")}
           >
-            <span className="primary-nav__icon" aria-hidden="true">💬</span>
+            <span className="primary-nav__icon" aria-hidden="true">
+              💬
+            </span>
             <span className="primary-nav__label">DMs</span>
           </button>
           <button
@@ -1541,7 +1613,9 @@ const WorkspacePage = () => {
             })}
             onClick={() => setActiveTab("activity")}
           >
-            <span className="primary-nav__icon" aria-hidden="true">🔔</span>
+            <span className="primary-nav__icon" aria-hidden="true">
+              🔔
+            </span>
             <span className="primary-nav__label">Activity</span>
           </button>
         </nav>
@@ -1581,48 +1655,88 @@ const WorkspacePage = () => {
             <h2>{headerTitle}</h2>
             <p>{headerSubtitle}</p>
           </div>
-          {activeTab === "home" && (
-            <div className="header__actions">
-              <input
-                type="search"
-                placeholder="Search Tickets or Titles"
-                value={ticketSearch}
-                onChange={(event) => setTicketSearch(event.target.value)}
-              />
-              {ticketSearchResults.length > 0 && (
-                <div className="search-results">
-                  <p className="muted">
-                    {ticketSearchResults.length} result
-                    {ticketSearchResults.length === 1 ? "" : "s"}
-                  </p>
-                  <ul>
-                    {ticketSearchResults.map((result) => (
-                      <li key={result.ticket.id}>
-                        <button
-                          type="button"
-                          onClick={() => void selectTicket(result.ticket.id)}
-                        >
-                          <strong>
-                            {result.ticket.ticketNumber} · {result.ticket.title}
-                          </strong>
-                          {result.matches.map((match, index) => (
-                            <span key={index}>{match}</span>
-                          ))}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+          {(activeTab === "home" || Boolean(user)) && (
+            <div className="header__right">
+              {activeTab === "home" && (
+                <div className="header__actions">
+                  <input
+                    type="search"
+                    placeholder="Search Tickets or Titles"
+                    value={ticketSearch}
+                    onChange={(event) => setTicketSearch(event.target.value)}
+                  />
+                  {ticketSearchResults.length > 0 && (
+                    <div className="search-results">
+                      <p className="muted">
+                        {ticketSearchResults.length} result
+                        {ticketSearchResults.length === 1 ? "" : "s"}
+                      </p>
+                      <ul>
+                        {ticketSearchResults.map((result) => (
+                          <li key={result.ticket.id}>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                void selectTicket(result.ticket.id)
+                              }
+                            >
+                              <strong>
+                                {result.ticket.ticketNumber} ·{" "}
+                                {result.ticket.title}
+                              </strong>
+                              {result.matches.map((match, index) => (
+                                <span key={index}>{match}</span>
+                              ))}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+              {user && (
+                <div className="header__user">
+                  <button
+                    type="button"
+                    className="user-avatar-btn"
+                    onClick={handleUserMenuToggle}
+                    aria-label={
+                      showUserMenu ? "Close user menu" : "Open user menu"
+                    }
+                    aria-expanded={showUserMenu}
+                    ref={userMenuTriggerRef}
+                  >
+                    {resolvedAvatarUrl ? (
+                      <img
+                        src={resolvedAvatarUrl}
+                        alt="User avatar"
+                        className="user-avatar__image"
+                      />
+                    ) : (
+                      <span
+                        className="user-avatar__fallback"
+                        aria-hidden="true"
+                      >
+                        {userInitial}
+                      </span>
+                    )}
+                  </button>
+                  {showUserMenu && (
+                    <div className="user-menu" ref={userMenuRef}>
+                      <button
+                        type="button"
+                        className="sign-out-btn"
+                        onClick={handleSignOut}
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
-          <button
-            type="button"
-            className="sign-out-btn"
-            onClick={() => void logout()}
-          >
-            Sign out
-          </button>
         </header>
         {feedback && <section className="inline-feedback">{feedback}</section>}
         {isBootstrapping && <Loader label="Loading workspace…" />}
