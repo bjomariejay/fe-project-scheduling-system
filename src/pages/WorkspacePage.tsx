@@ -840,9 +840,9 @@ const WorkspacePage = () => {
                       {selectedTicket.status.replace("_", " ")}
                     </span>
                   </header>
-                  <p>
-                    {selectedTicket.description || "No description provided."}
-                  </p>
+                  <section className="ticket-description">
+                    <label>Description:  {selectedTicket.description || "No description provided."}</label>
+                  </section>
                   <section className="ticket-info">
                     <div>
                       <label>Assignee</label>

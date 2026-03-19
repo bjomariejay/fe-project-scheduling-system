@@ -35,7 +35,7 @@ const CreateTicketModal = ({
         </header>
         <form onSubmit={onSubmit}>
           <label>
-            Title
+            Title: &nbsp;
             <input
               type="text"
               value={form.title}
@@ -43,16 +43,9 @@ const CreateTicketModal = ({
               required
             />
           </label>
-          <label style={{display:'none'}}>
-            Description
-            <textarea
-              rows={3}
-              value={form.description}
-              onChange={(event) => onFieldChange("description", event.target.value)}
-            />
-          </label>
+          
           <label>
-            Project
+            Project: &nbsp;
             <select
               value={form.projectId}
               onChange={(event) => onFieldChange("projectId", event.target.value)}
@@ -67,7 +60,7 @@ const CreateTicketModal = ({
             </select>
           </label>
           <label>
-            Estimated hours
+            Estimated hours: &nbsp;
             <input
               type="number"
               min={0}
@@ -76,7 +69,7 @@ const CreateTicketModal = ({
             />
           </label>
           <label>
-            Priority
+            Priority: &nbsp;
             <select
               value={form.priority}
               onChange={(event) =>
@@ -88,7 +81,7 @@ const CreateTicketModal = ({
             </select>
           </label>
           <label>
-            Privacy
+            Privacy: &nbsp;
             <select
               value={form.privacy}
               onChange={(event) =>
@@ -98,6 +91,15 @@ const CreateTicketModal = ({
               <option value="public">Public</option>
               <option value="private">Private</option>
             </select>
+          </label>
+          <label style={{display: 'contents'}}>
+            Description: &nbsp;
+            <textarea
+              rows={3}
+              value={form.description}
+              placeholder="Add context, goals, or reproduction steps"
+              onChange={(event) => onFieldChange("description", event.target.value)}
+            />
           </label>
           <footer>
             <button type="button" className="link-button outline" onClick={onClose}>

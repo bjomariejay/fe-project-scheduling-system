@@ -1186,6 +1186,33 @@ textarea {
   color: #4c5165;
 }
 
+.ticket-description {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin: 0.5rem 0 1.25rem;
+}
+
+.ticket-description label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #8c90a6;
+}
+
+.ticket-description__body {
+  margin: 0;
+  background: #fff;
+  border: 1px solid #e0e4f3;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  font-size: 0.95rem;
+  color: #3d4259;
+  white-space: pre-line;
+  min-height: 60px;
+}
+
 .detail__meta {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
