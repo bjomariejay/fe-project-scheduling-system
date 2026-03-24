@@ -32,6 +32,35 @@ const ticketCategoryConfig = [
   { key: "archived", label: "Archived", class: "archived" },
 ] as const;
 
+const urlSegmentRegex = /(https?:\/\/[^\s]+)/g;
+const isUrl = /^https?:\/\/[^\s]+$/;
+
+const renderMessageBody = (body: string) =>
+  body.split(urlSegmentRegex).map((segment, index) => {
+    if (!segment) {
+      return null;
+    }
+
+    if (isUrl.test(segment)) {
+      return (
+        <a
+          key={`message-link-${index}`}
+          href={segment}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {segment}
+        </a>
+      );
+    }
+
+    return (
+      <span key={`message-text-${index}`}>
+        {segment}
+      </span>
+    );
+  });
+
 const WorkspacePage = () => {
   const { user, logout } = useAuth();
   const {
@@ -1371,7 +1400,7 @@ const WorkspacePage = () => {
                                     ).toLocaleString()}
                                   </small>
                                 </header>
-                                <p>{message.body}</p>
+                                <p>{renderMessageBody(message.body)}</p>
                               </article>
                             );
                           })}
