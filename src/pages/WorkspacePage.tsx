@@ -1349,7 +1349,7 @@ const WorkspacePage = () => {
                     ) : (
                       <section className="ticket-thread">
                         <h4>Messages</h4>
-                        <div className="message-list">
+                        <div className="message-list ticket-description__body">
                           {selectedTicket.messages.map((message) => {
                             const isViewer =
                               message.displayName === user?.displayName;
