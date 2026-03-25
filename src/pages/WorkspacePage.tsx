@@ -572,7 +572,9 @@ const WorkspacePage = () => {
       void handleArchiveTicket();
       return;
     }
-    const reviewerCommand = payload.match(/^\/r-@([a-z0-9._-]+)$/i);
+    const reviewerCommand = payload.match(
+      /^\/(?:reviewer|r)-@([a-z0-9._-]+)$/i,
+    );
     if (reviewerCommand) {
       const targetUsername = reviewerCommand[1].toLowerCase();
       const targetUser = users.find(
@@ -586,7 +588,9 @@ const WorkspacePage = () => {
       }
       return;
     }
-    const estimateMatch = payload.match(/^\/e[-\s]?([0-9]+(?:\.[0-9]+)?)$/i);
+    const estimateMatch = payload.match(
+      /^\/(?:estimate(?:-time)?|e-time)[-\s]?([0-9]+(?:\.[0-9]+)?)$/i,
+    );
     if (estimateMatch) {
       const hours = Number(estimateMatch[1]);
       if (!Number.isNaN(hours)) {
@@ -597,7 +601,9 @@ const WorkspacePage = () => {
       return;
     }
 
-    const actualMatch = payload.match(/^\/a[-\s]?([0-9]+(?:\.[0-9]+)?)$/i);
+    const actualMatch = payload.match(
+      /^\/(?:spend(?:-time)?|a-time)[-\s]?([0-9]+(?:\.[0-9]+)?)$/i,
+    );
     if (actualMatch) {
       const hours = Number(actualMatch[1]);
       if (!Number.isNaN(hours)) {
@@ -608,7 +614,7 @@ const WorkspacePage = () => {
       return;
     }
 
-    const assignMatch = payload.match(/^\/a-@?([\w.-]+)$/i);
+    const assignMatch = payload.match(/^\/(?:assignee|a)-@?([\w.-]+)$/i);
     if (assignMatch) {
       const identifier = assignMatch[1].toLowerCase();
       const targetUser = users.find((candidate) => {
@@ -729,10 +735,10 @@ const WorkspacePage = () => {
     return [
       "/start",
       "/archive",
-      "/a-@username",
-      "/e-time",
-      "/r-@username",
-      "/a-time",
+      "/assignee-@username",
+      "/estimate-time",
+      "/reviewer-@username",
+      "/spend-time",
     ];
   };
 
