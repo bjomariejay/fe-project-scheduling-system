@@ -54,11 +54,7 @@ const renderMessageBody = (body: string) =>
       );
     }
 
-    return (
-      <span key={`message-text-${index}`}>
-        {segment}
-      </span>
-    );
+    return <span key={`message-text-${index}`}>{segment}</span>;
   });
 
 const WorkspacePage = () => {
@@ -314,9 +310,7 @@ const WorkspacePage = () => {
 
   useEffect(() => {
     if (!activeProjectMenuId) return;
-    const handleOutsideProjectMenuClick = (
-      event: MouseEvent | TouchEvent,
-    ) => {
+    const handleOutsideProjectMenuClick = (event: MouseEvent | TouchEvent) => {
       const target = event.target;
       if (!(target instanceof Node)) return;
       if (
@@ -833,10 +827,10 @@ const WorkspacePage = () => {
                       type="button"
                       onClick={openCreateProject}
                     >
-                     Create Project
+                      Create Project
                     </button>
                   </div>
-                 
+
                   <div
                     className={clsx("project-panel", {
                       "is-collapsed": projectsCollapsed,
@@ -934,7 +928,10 @@ const WorkspacePage = () => {
                                       type="button"
                                       className="ticket-action-btn"
                                       onClick={(event) =>
-                                        handleProjectCreateTicket(event, project)
+                                        handleProjectCreateTicket(
+                                          event,
+                                          project,
+                                        )
                                       }
                                       aria-label={`Create ticket for ${project.name}`}
                                       title="Create ticket"
@@ -995,107 +992,6 @@ const WorkspacePage = () => {
                                                 </strong>
                                               </div>
                                             </button>
-                                            <div className="project-ticket-row__actions">
-                                              <div className="ticket-menu">
-                                                <button
-                                                  type="button"
-                                                  className="ticket-action-btn ticket-option-btn"
-                                                  onClick={(event) =>
-                                                    handleTicketMenuToggle(
-                                                      event,
-                                                      ticket.id,
-                                                    )
-                                                  }
-                                                  aria-haspopup="true"
-                                                  aria-expanded={
-                                                    activeTicketMenuId ===
-                                                    ticket.id
-                                                  }
-                                                  aria-label={
-                                                    activeTicketMenuId ===
-                                                    ticket.id
-                                                      ? `Hide actions for ${ticket.ticketNumber}`
-                                                      : `Show actions for ${ticket.ticketNumber}`
-                                                  }
-                                                  ref={(node) => {
-                                                    if (
-                                                      activeTicketMenuId ===
-                                                      ticket.id
-                                                    ) {
-                                                      ticketMenuTriggerRef.current =
-                                                        node;
-                                                    }
-                                                  }}
-                                                >
-                                                  <svg
-                                                    viewBox="0 0 24 24"
-                                                    aria-hidden="true"
-                                                    focusable="false"
-                                                  >
-                                                    <path d="M12 6a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm0 6a2 2 0 110 4 2 2 0 010-4z" />
-                                                  </svg>
-                                                </button>
-                                                {activeTicketMenuId ===
-                                                  ticket.id && (
-                                                  <div
-                                                    className="ticket-menu__popover"
-                                                    ref={(node) => {
-                                                      if (
-                                                        activeTicketMenuId ===
-                                                        ticket.id
-                                                      ) {
-                                                        ticketMenuRef.current =
-                                                          node;
-                                                      }
-                                                    }}
-                                                  >
-                                                    <button
-                                                      type="button"
-                                                      className="ticket-action-btn"
-                                                      onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        closeTicketMenu();
-                                                        openTicketEditor(
-                                                          ticket.id,
-                                                        );
-                                                      }}
-                                                      aria-label={`Edit ${ticket.ticketNumber}`}
-                                                      title="Edit ticket"
-                                                    >
-                                                      <svg
-                                                        viewBox="0 0 24 24"
-                                                        aria-hidden="true"
-                                                        focusable="false"
-                                                      >
-                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
-                                                      </svg>
-                                                    </button>
-                                                    <button
-                                                      type="button"
-                                                      className="ticket-action-btn ticket-action-btn--danger"
-                                                      onClick={(event) => {
-                                                        event.stopPropagation();
-                                                        closeTicketMenu();
-                                                        handleTicketDelete(
-                                                          ticket.id,
-                                                          ticket.ticketNumber,
-                                                        );
-                                                      }}
-                                                      aria-label={`Delete ${ticket.ticketNumber}`}
-                                                      title="Delete ticket"
-                                                    >
-                                                      <svg
-                                                        viewBox="0 0 24 24"
-                                                        aria-hidden="true"
-                                                        focusable="false"
-                                                      >
-                                                        <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1z" />
-                                                      </svg>
-                                                    </button>
-                                                  </div>
-                                                )}
-                                              </div>
-                                            </div>
                                           </div>
                                         </li>
                                       ))
@@ -1295,13 +1191,100 @@ const WorkspacePage = () => {
               )}
               {selectedTicket ? (
                 <article className="ticket-detail">
-                  <header>
-                    <h3>
-                      {selectedTicket.ticketNumber} · {selectedTicket.title}
-                    </h3>
-                    <span className={clsx("status", selectedTicket.status)}>
-                      {selectedTicket.status.replace("_", " ")}
-                    </span>
+                  <header className="ticket-detail__header">
+                    <div className="ticket-detail__heading">
+                      <h3>
+                        {selectedTicket.ticketNumber} · {selectedTicket.title} <span className={clsx("status", selectedTicket.status)}>
+                          {selectedTicket.status.replace("_", " ")}
+                        </span>
+                      </h3>
+                     
+                    </div>
+                    <div className="ticket-detail__actions">
+                      <div className="ticket-menu">
+                        <button
+                          type="button"
+                          className="ticket-action-btn ticket-option-btn"
+                          onClick={(event) =>
+                            handleTicketMenuToggle(event, selectedTicket.id)
+                          }
+                          aria-haspopup="true"
+                          aria-expanded={
+                            activeTicketMenuId === selectedTicket.id
+                          }
+                          aria-label={
+                            activeTicketMenuId === selectedTicket.id
+                              ? `Hide actions for ${selectedTicket.ticketNumber}`
+                              : `Show actions for ${selectedTicket.ticketNumber}`
+                          }
+                          ref={(node) => {
+                            if (activeTicketMenuId === selectedTicket.id) {
+                              ticketMenuTriggerRef.current = node;
+                            }
+                          }}
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            aria-hidden="true"
+                            focusable="false"
+                          >
+                            <path d="M12 6a2 2 0 110-4 2 2 0 010 4zm0 4a2 2 0 110 4 2 2 0 010-4zm0 6a2 2 0 110 4 2 2 0 010-4z" />
+                          </svg>
+                        </button>
+                        {activeTicketMenuId === selectedTicket.id && (
+                          <div
+                            className="ticket-menu__popover"
+                            ref={(node) => {
+                              if (activeTicketMenuId === selectedTicket.id) {
+                                ticketMenuRef.current = node;
+                              }
+                            }}
+                          >
+                            <button
+                              type="button"
+                              className="ticket-action-btn"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                closeTicketMenu();
+                                openTicketEditor(selectedTicket.id);
+                              }}
+                              aria-label={`Edit ${selectedTicket.ticketNumber}`}
+                              title="Edit ticket"
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm2.92 2.17H5v-.92l9.06-9.06.92.92-9.06 9.06zM20.71 7.04a1 1 0 000-1.42l-2.34-2.34a1 1 0 00-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" />
+                              </svg>
+                            </button>
+                            <button
+                              type="button"
+                              className="ticket-action-btn ticket-action-btn--danger"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                closeTicketMenu();
+                                handleTicketDelete(
+                                  selectedTicket.id,
+                                  selectedTicket.ticketNumber,
+                                );
+                              }}
+                              aria-label={`Delete ${selectedTicket.ticketNumber}`}
+                              title="Delete ticket"
+                            >
+                              <svg
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                                focusable="false"
+                              >
+                                <path d="M16 9v10H8V9h8m-1.5-6h-5l-1 1H5v2h14V4h-3.5l-1-1z" />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </header>
                   <section className="ticket-description">
                     <label>Description</label>
