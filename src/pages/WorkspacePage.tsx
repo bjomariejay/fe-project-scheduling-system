@@ -1290,13 +1290,7 @@ const WorkspacePage = () => {
                       </div>
                     </div>
                   </header>
-                  <section className="ticket-description">
-                    <label>Description</label>
-                    <p className="ticket-description__body">
-                      {selectedTicket.description || "No description provided."}
-                    </p>
-                  </section>
-                  <section className="ticket-info">
+                   <section className="ticket-info">
                     <div>
                       <label>Assignee</label>
                       <p>
@@ -1335,6 +1329,13 @@ const WorkspacePage = () => {
                       </p>
                     </div>
                   </section>
+                  <section className="ticket-description">
+                    <label>Description</label>
+                    <p className="ticket-description__body">
+                      {selectedTicket.description || "No description provided."}
+                    </p>
+                  </section>
+                 
                   <section
                     className="ticket-members"
                     style={{ display: "inline-block" }}
