@@ -44,7 +44,7 @@ const UserSettingsModal = ({
               onChange={(event) => onFieldChange("displayName", event.target.value)}
             />
           </label>
-          <label>
+          <label style={{display: 'none'}}>
             Handle
             <input
               type="text"

@@ -2592,3 +2592,8 @@ textarea {
   background: #611f69;
   color: #fff;
 }
+
+
+.text-left{
+  text-align: left !important;
+}

@@ -227,7 +227,7 @@ const LoginPage = () => {
               clearAuthError();
             }}
           >
-            {mode === 'login' ? 'Sign up' : 'Sign in1'}
+            {mode === 'login' ? 'Sign up' : 'Sign in'}
           </button>
         </p>
       </article>

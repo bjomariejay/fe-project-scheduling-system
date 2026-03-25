@@ -1151,7 +1151,7 @@ const WorkspacePage = () => {
                               </span>
                             </td>
                             <td>{entry.actorName || "—"}</td>
-                            <td>
+                            <td className="text-left">
                               <button
                                 type="button"
                                 className="report-ticket-link"
