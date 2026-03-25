@@ -547,14 +547,28 @@ const WorkspacePage = () => {
     openCreateTicket();
   };
 
+  const clearSlashCommandDraft = () => {
+    setMessageDraft("");
+    setShowSlashSuggestions(false);
+    setSlashRange(null);
+  };
+
   const submitMessage = () => {
     const payload = messageDraft.trim();
     if (!payload) return;
+
+    const recordSlashCommand = () => {
+      clearSlashCommandDraft();
+      void postTicketMessage(payload);
+    };
+
     if (payload === "/start") {
+      clearSlashCommandDraft();
       void startTicket();
       return;
     }
     if (payload === "/archive") {
+      recordSlashCommand();
       void handleArchiveTicket();
       return;
     }
@@ -565,9 +579,7 @@ const WorkspacePage = () => {
         (candidate) => candidate.username?.toLowerCase() === targetUsername,
       );
       if (targetUser) {
-        setMessageDraft("");
-        setShowSlashSuggestions(false);
-        setSlashRange(null);
+        recordSlashCommand();
         void updateTicketReviewer(targetUser.id);
       } else {
         console.warn(`Reviewer username ${targetUsername} not found`);
@@ -578,10 +590,7 @@ const WorkspacePage = () => {
     if (estimateMatch) {
       const hours = Number(estimateMatch[1]);
       if (!Number.isNaN(hours)) {
-        setMessageDraft("");
-        setShowSlashSuggestions(false);
-        setSlashRange(null);
-
+        recordSlashCommand();
         console.log("estimated time: ", hours);
         void updateTicketEstimate(hours);
       }
@@ -592,10 +601,7 @@ const WorkspacePage = () => {
     if (actualMatch) {
       const hours = Number(actualMatch[1]);
       if (!Number.isNaN(hours)) {
-        setMessageDraft("");
-        setShowSlashSuggestions(false);
-        setSlashRange(null);
-
+        recordSlashCommand();
         console.log("actual time: ", hours);
         void updateTicketActualTime(hours);
       }
@@ -611,9 +617,7 @@ const WorkspacePage = () => {
         return username === identifier || handle === identifier;
       });
       if (targetUser) {
-        setMessageDraft("");
-        setShowSlashSuggestions(false);
-        setSlashRange(null);
+        recordSlashCommand();
         void handleAssign(targetUser.id);
       }
       return;
